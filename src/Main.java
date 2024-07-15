@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -40,9 +42,10 @@ class QuestionData {
 class Question {
     String question;
     ArrayList<String> options;
-    int correctAns;
+    int correctAns, response;
     String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
             "M", "N", "O", "P", "Q", "R"};
+
 
     Question(String question, ArrayList<String> options, int correctAns) {
         this.question = question;
@@ -80,7 +83,7 @@ class Question {
 
 
 class QuizApp extends JFrame {
-    JPanel welcomePage, quizPage, settingsScreen;
+    JPanel welcomePage, quizPage, helpPage, endPage;
     CardLayout  cardLayout;
     JPanel mainPanel;
 
@@ -132,14 +135,87 @@ class WelcomePage extends JPanel {
 
 
 class QuizPage extends JPanel {
-    public QuizPage() {
+    JButton prevButton, nextButton;
+    JPanel mainPanel;
+    JPanel questionPanel;
+    JLabel questionText;
+    ArrayList<JLabel> options;
+    ArrayList<Question> questions;
+    int currentIndex = 0;
+    QuizApp parentWindow;
+
+    public QuizPage(QuizApp parentWindow, ArrayList<Question> questions) {
+        this.questions = questions;
+        this.parentWindow = parentWindow;
+        prevButton = new JButton("Previous");
+        prevButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                toPreviousQuestion();
+            }
+        });
+
+        this.updateView();
+    }
+
+    boolean isOnLastQuestion() {
+        return currentIndex >= questions.size() - 1;
+    }
+
+    void updateView() {
+        if (this.isOnLastQuestion()) {
+            nextButton.setText("Finish");
+            nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+            nextButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    toEndOfQuiz();
+                }
+            });
+        } else {
+            nextButton.setText("Next");
+            nextButton.removeActionListener(nextButton.getActionListeners()[0]);
+            nextButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    toNextQuestion();
+                }
+            });
+        }
+    }
+
+    void toNextQuestion() {
+        System.out.println("Next question");
+
+        // Disable the next button. It will be re-enabled by clicking one of the multiple-choice
+        // options
+        nextButton.setEnabled(false);
+
+        // Check if there's room to go to the next question
+        if (currentIndex < questions.size() - 2) {
+            // increment the current index
+            this.currentIndex += 1;
+        }
+    }
+    void toPreviousQuestion() {
+        System.out.println("Previous question");
+        // Check if there's room to go to the previous question
+        if (currentIndex > 0) {
+            // decrement the current index
+            this.currentIndex -= 1;
+        }
+    }
+    void toEndOfQuiz() {
+        System.out.println("End quiz");
+        this.parentWindow.cardLayout.show(this.parentWindow.endPage, "End of quiz");
 
     }
 }
 
 
-class SettingsPage extends JPanel {
-    public SettingsPage() {
-
+class HelpPage extends JPanel {
+    QuizApp parentWindow;
+    public HelpPage(QuizApp parentWindow) {
+        this.parentWindow = parentWindow;
     }
 }
