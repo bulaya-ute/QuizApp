@@ -533,7 +533,10 @@ class Question {
 
 
 class QuizApp extends JFrame {
-    JPanel welcomePage, quizPage, helpPage, endPage;
+    WelcomePage welcomePage;
+    QuizPage quizPage;
+    HelpPage helpPage;
+    EndPage endPage;
     CardLayout cardLayout;
     JPanel mainPanel;
     ArrayList<Question> questions;
@@ -541,10 +544,9 @@ class QuizApp extends JFrame {
     public QuizApp() {
         questions = Question.loadQuestions();
 
-        this.cardLayout = new CardLayout();
-        this.mainPanel = new JPanel(cardLayout);
-
-        this.add(mainPanel);
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+        add(mainPanel);
 
         welcomePage = new WelcomePage(this);
         quizPage = new QuizPage(this, questions);
@@ -561,6 +563,10 @@ class QuizApp extends JFrame {
         this.setTitle("Zed Quiz");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
+    }
+
+    public void reset() {
+
     }
 }
 
@@ -598,7 +604,6 @@ class QuizPage extends JPanel {
     JPanel mainPanel;
     JPanel questionPanel;
     JLabel questionText;
-    ArrayList<Integer> userSelections;  // Contains the answers that the user selects during the quiz
     ArrayList<Question> questions;
     int currentQuestionIndex = 0;
     QuizApp parentWindow;
@@ -612,7 +617,7 @@ class QuizPage extends JPanel {
         prevButton = new JButton("Previous");
         questionText = new JLabel("- Question not yet loaded -");
         questionPanel = new JPanel();
-        userSelections = new ArrayList<>();
+//        userSelections = new ArrayList<>();
 
         prevButton.addActionListener(e -> toPreviousQuestion());
         bottomBar = new JPanel( new GridLayout(1, 2));
@@ -630,10 +635,6 @@ class QuizPage extends JPanel {
 
 
         this.updateView();
-    }
-
-    boolean isOnLastQuestion() {
-        return currentQuestionIndex >= questions.size() - 1;
     }
 
     void updateView() {
@@ -667,12 +668,14 @@ class QuizPage extends JPanel {
             // Add the radiobutton to the panel
             questionPanel.add(radioButton);
 
-            while (userSelections.size() <= currentQuestionIndex)
-                userSelections.add(-1);
+//            while (userSelections.size() <= currentQuestionIndex)
+//                userSelections.add(-1);
 
             // Restore user's last selection
-            radioButton.setSelected(optionIndex == userSelections.get(currentQuestionIndex) &&
-                    userSelections.get(currentQuestionIndex) != -1);
+            radioButton.setSelected(questions.get(currentQuestionIndex).userSelection == optionIndex &&
+                    questions.get(currentQuestionIndex).userSelection != -1);
+//            radioButton.setSelected(optionIndex == userSelections.get(currentQuestionIndex) &&
+//                    userSelections.get(currentQuestionIndex) != -1);
 
             radioButton.addActionListener(e -> {
                 // Enable the next button
@@ -681,7 +684,8 @@ class QuizPage extends JPanel {
                 radioButton.revalidate();
 
                 // Update the user selection
-                userSelections.set(currentQuestionIndex, finalOptionIndex);
+//                userSelections.set(currentQuestionIndex, finalOptionIndex);
+                questions.get(currentQuestionIndex).userSelection = finalOptionIndex;
 
                 // Add the button to the button group
                 buttonGroup.add(radioButton);
@@ -700,7 +704,8 @@ class QuizPage extends JPanel {
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
             nextButton.addActionListener(e -> toNextQuestion());
         }
-        nextButton.setEnabled(userSelections.get(currentQuestionIndex) != -1);
+//        nextButton.setEnabled(userSelections.get(currentQuestionIndex) != -1);
+        nextButton.setEnabled(questions.get(currentQuestionIndex).userSelection != -1);
         prevButton.setEnabled(currentQuestionIndex > 0);
     }
 
@@ -715,8 +720,6 @@ class QuizPage extends JPanel {
     }
 
     void toPreviousQuestion() {
-        nextButton.setEnabled(userSelections.get(currentQuestionIndex) != -1);
-        System.out.println("Previous question");
         // Check if there's room to go to the previous question
         if (currentQuestionIndex > 0) {
             // decrement the current index
@@ -738,10 +741,34 @@ class HelpPage extends JPanel {
         this.parentWindow = parentWindow;
     }
 }
+
+
 class EndPage extends JPanel {
     QuizApp parentWindow;
+    JPanel mainPanel;
+    JLabel resultsLabel;
+    JButton restartButton;
 
     public EndPage(QuizApp parentWindow) {
         this.parentWindow = parentWindow;
+        resultsLabel = new JLabel();
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(resultsLabel, BorderLayout.NORTH);
+        resultsLabel.setText("You got " + getWrong().size() + "/" + parentWindow.quizPage.questions.size() + " correct");
+        restartButton = new JButton("Restart");
+        restartButton.addActionListener(e -> {
+            parentWindow.cardLayout.show(parentWindow.mainPanel, "WelcomePage");
+            parentWindow.reset();
+        });
+    }
+
+    ArrayList<Integer> getWrong() {
+        ArrayList<Integer> wrong = new ArrayList<>();
+        for (int i = 0; i < parentWindow.quizPage.questions.size(); i++) {
+            Question currentQuestion = parentWindow.quizPage.questions.get(i);
+            if (currentQuestion.userSelection != currentQuestion.correctAns)
+                wrong.add(i);
+        }
+        return wrong;
     }
 }
