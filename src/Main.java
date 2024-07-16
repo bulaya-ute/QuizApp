@@ -802,7 +802,7 @@ class QuizApp extends JFrame {
         add(mainPanel);
 
         welcomePage = new WelcomePage(this);
-        quizPage = new QuizPage(this, RandomSelection.getRandomSelection(questions, nQuestions));
+        quizPage = new QuizPage(this, Utils.getRandomSelection(questions, nQuestions));
         endPage = new EndPage(this);
 
         // Add the screens with unique identifiers
@@ -821,7 +821,7 @@ class QuizApp extends JFrame {
             question.userSelection = -1;
         }
         quizPage.currentQuestionIndex = 0;
-        quizPage.questions = RandomSelection.getRandomSelection(questions, nQuestions);
+        quizPage.questions = Utils.getRandomSelection(questions, nQuestions);
         quizPage.updateView();
     }
 }
@@ -830,6 +830,7 @@ class QuizApp extends JFrame {
 class WelcomePage extends JPanel {
     String title;
     JButton startButton;
+    JButton settingsButton;
     JButton exitButton;
     GridLayout grid;
     QuizApp parentWindow;
@@ -841,6 +842,7 @@ class WelcomePage extends JPanel {
         this.startButton = new JButton("Start");
         startButton.addActionListener(e -> this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage"));
         this.exitButton = new JButton("Exit");
+        this.exitButton.addActionListener(e -> System.exit(0));
         this.grid = new GridLayout(5, 1, 10, 10);
 
         this.setLayout(grid);  // Set the layout
@@ -865,7 +867,8 @@ class QuizPage extends JPanel {
     public QuizPage(QuizApp parentWindow, ArrayList<Question> questions) {
         // Initialize fields
         nextButton = new JButton();
-        nextButton.addActionListener(e -> {});
+        nextButton.addActionListener(e -> {
+        });
         nextButton.setEnabled(false);
         prevButton = new JButton("Previous");
         questionText = new JLabel("- Question not yet loaded -");
@@ -873,7 +876,7 @@ class QuizPage extends JPanel {
 //        userSelections = new ArrayList<>();
 
         prevButton.addActionListener(e -> toPreviousQuestion());
-        bottomBar = new JPanel( new GridLayout(1, 2));
+        bottomBar = new JPanel(new GridLayout(1, 2));
         bottomBar.add(prevButton);
         bottomBar.add(nextButton);
         this.questions = questions;
@@ -892,13 +895,13 @@ class QuizPage extends JPanel {
 
     void updateView() {
         /* Control the state of the 'next' button, disabling it if either an active option hasn't been selected
-        *  or there is nothing next.
-        * Display the current question on the screen.
-        * */
+         *  or there is nothing next.
+         * Display the current question on the screen.
+         * */
 
         Question currentQuestion = questions.get(currentQuestionIndex);
 
-        questionText.setText(currentQuestionIndex + 1 + ". "+ currentQuestion.question);
+        questionText.setText(currentQuestionIndex + 1 + ". " + currentQuestion.question);
 
         // Empty the existing multiple choice options
         mainPanel.remove(questionPanel); // Remove the center component
@@ -946,8 +949,7 @@ class QuizPage extends JPanel {
             nextButton.setText("Finish");
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
             nextButton.addActionListener(e -> toEndOfQuiz());
-        }
-        else {
+        } else {
             nextButton.setText("Next");
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
             nextButton.addActionListener(e -> toNextQuestion());
@@ -1004,7 +1006,8 @@ class EndPage extends JPanel {
     }
 
     public void updateText() {
-        resultsLabel.setText("You got " + getRight() + "/" + parentWindow.quizPage.questions.size() + " correct");}
+        resultsLabel.setText("You got " + getRight() + "/" + parentWindow.quizPage.questions.size() + " correct");
+    }
 
     int getRight() {
         int right = 0;
@@ -1017,7 +1020,7 @@ class EndPage extends JPanel {
 }
 
 
-class RandomSelection {
+class Utils {
 
     public static <T> ArrayList<T> getRandomSelection(List<T> list, int n) {
         if (n > list.size()) {
@@ -1028,5 +1031,17 @@ class RandomSelection {
         Collections.shuffle(shuffledList);
 
         return new ArrayList<>(shuffledList.subList(0, n));
+    }
+
+    public static String wrapString(String text, int charLen) {
+        StringBuilder newString = new StringBuilder();
+        int end;
+        for (int i = 0; i < text.length(); i += charLen) {
+            end = i + charLen;
+            if (end > text.length() - 1)
+                end = text.length() - 1;
+            newString.append(text, i, end);
+        }
+        return newString.toString();
     }
 }
