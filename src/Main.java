@@ -578,9 +578,7 @@ class WelcomePage extends JPanel {
         this.parentWindow = parentWindow;
         this.title = "Quiz";
         this.startButton = new JButton("Start");
-        startButton.addActionListener(e -> {
-            this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage");
-        });
+        startButton.addActionListener(e -> this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage"));
         this.helpButton = new JButton("Help");
         this.exitButton = new JButton("Exit");
         this.grid = new GridLayout(5, 1, 10, 10);
@@ -616,12 +614,7 @@ class QuizPage extends JPanel {
         questionPanel = new JPanel();
         userSelections = new ArrayList<>();
 
-        prevButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toPreviousQuestion();
-            }
-        });
+        prevButton.addActionListener(e -> toPreviousQuestion());
         bottomBar = new JPanel( new GridLayout(1, 2));
         bottomBar.add(prevButton);
         bottomBar.add(nextButton);
@@ -700,22 +693,12 @@ class QuizPage extends JPanel {
         if (currentQuestionIndex == questions.size() - 2) {
             nextButton.setText("Finish");
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
-            nextButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    toEndOfQuiz();
-                }
-            });
+            nextButton.addActionListener(e -> toEndOfQuiz());
         }
         else {
             nextButton.setText("Next");
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
-            nextButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    toNextQuestion();
-                }
-            });
+            nextButton.addActionListener(e -> toNextQuestion());
         }
         nextButton.setEnabled(userSelections.get(currentQuestionIndex) != -1);
         prevButton.setEnabled(currentQuestionIndex > 0);
