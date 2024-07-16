@@ -2,6 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 
 public class Main {
@@ -22,468 +25,732 @@ class Question {
     String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
             "M", "N", "O", "P", "Q", "R"};
 
-    static String defaultQuestions = """
-            Who was the first president of Zambia?
-            0
-            Kenneth Kaunda
-            Harry Nkumbula
-            Simon Mwansa Kapwepwe
-            Levy Mwanawasa
-
-            Which European explorer first visited Zambia in 1798?
-            3
-            David Livingstone
-            John Speke
-            Vasco da Gama
-            Francisco de Lacerda
-
-            The name "Zambia" comes from which river?
-            1
-            Congo River
-            Zambezi River
-            Kafue River
-            Luangwa River
-
-            Which tribe was dominant in Zambia during the pre-colonial era?
-            0
-            Bemba
-            Ngoni
-            Lozi
-            Chewa""";
-
-            /*Who led the fight for Zambia's independence?
-            0
-            Kenneth Kaunda
-            Harry Nkumbula
-            Simon Mwansa Kapwepwe
-            Robert Makasa
-
-            In which year did Zambia gain independence?
-            1
-            1957
-            1964
-            1970
-            1980
-
-            Which mineral was the mainstay of Zambia's economy during colonial times?
-            0
-            Copper
-            Gold
-            Silver
-            Tin
-
-            The British South Africa Company (BSAC) ruled Zambia as a colony from:
-            0
-            1890 to 1924
-            1900 to 1930
-            1895 to 1910
-            1888 to 1905
-
-            The Mau Mau rebellion occurred in which year?
-            0
-            1952
-            1960
-            1955
-            1947
-
-            Who was the leader of the ANC during the struggle for independence?
-            0
-            Kenneth Kaunda
-            Harry Nkumbula
-            Simon Mwansa Kapwepwe
-            Jason Moyo
-
-            The Federation of Rhodesia and Nyasaland was formed in:
-            0
-            1953
-            1963
-            1950
-            1948
-
-            The Zambian Kwacha replaced which currency in 1968?
-            3
-            British Pound
-            US Dollar
-            South African Rand
-            Rhodesian Dollar
-
-            The Freedom Statue in Lusaka commemorates:
-            0
-            Zambia's independence
-            The end of the Cold War
-            The fight against apartheid
-            The Mau Mau rebellion
-
-            The Barotseland Agreement of 1964 was between:
-            2
-            Zambia and Britain
-            Zambia and South Africa
-            Zambia and the Barotse Royal Establishment
-            Zambia and the UN
-
-            Who was the first African to visit Europe from Zambia?
-            2
-            David Livingstone
-            Mwata Kazembe
-            King Lewanika
-            Mpezeni
-
-            The Bemba people migrated to Zambia from:
-            1
-            Angola
-            Congo
-            Tanzania
-            Mozambique
-
-            The Zambezi River forms the border between Zambia and:
-            3
-            Zimbabwe
-            Botswana
-            Namibia
-            Mozambique
-
-            The ancient kingdom of Mapungubwe was located in:
-            2
-            Zambia
-            Zimbabwe
-            South Africa
-            Botswana
-
-            The Zambian national anthem is called:
-            3
-            Stand and Sing of Zambia
-            God Bless Africa
-            Free Zambia
-            Lumbanyeni
-
-            The University of Zambia was founded in:
-            2
-            1965
-            1970
-            1969
-            1966
-
-            What was the former name for Kabwe?
-            1
-            Broken Man
-            Broken Hill
-            Broken Place
-            Sunda Station
-
-            What was the former name for Chipata?
-            2
-            fort Rosemary
-            Fort Martin
-            Fort Jameson
-            Chipata Extension
-
-            Who killed the Mailon brothers?
-            1
-            The Neighbors
-            Zambian Army
-            The police
-            Suicide
-
-            What was the first name for Mushala?
-            2
-            Adam
-            Aaron
-            Adamson
-            Amos
-
-            Who was the oldest from the late Mailon brothers?
-            2
-            Fabian
-            Stephen
-            Mika
-            Tunde
-
-            Which part of Zambia do we find the Victoria Falls?
-            0
-            Southern
-            Eastern
-            Central
-            Lusaka
-
-            What tribe celebrates the Likumbi Lya Mize tradition ceremony?
-            3
-            LOZI
-            Ila
-            Tonga
-            Luvale
-
-            In which year did Zambia experience a coup d'etat?
-            0
-            1997
-            1964
-            1992
-            1973
-
-            In which year did the famous Zanko Mpundu break the chains?
-            1
-            1964
-            1963
-            2001
-            1997
-
-            Name the oldest university in Zambia.
-            3
-            ZCAS
-            CBU
-            UNILUS
-            UNZA
-
-            In which year was the first president of Zambia born?
-            1
-            1900
-            1924
-            1964
-            1918
-
-            What was the middle name for the late third republican president of Zambia?
-            2
-            Pule
-            Patson
-            Patrick
-            Prince
-
-            Who was the first female VEEP of Zambia?
-            2
-            Inonge Wena
-            Mutale Nalumango
-            Inonge Wina
-            Ireen Mambilima
-
-            Who was the leader of the Lumpa Church in Zambia?
-            0
-            Alice Leshina
-            Maino Soko
-            Dora Siliya
-            Esther Lungu
-
-            Which year did Zambia lift the AFCON?
-            3
-            2013
-            1964
-            1990
-            2012
-
-            Which Zambian artist met Americans Former President Barrack Obama at the White House?
-            3
-            Shenky
-            Dalitso
-            Chef 187
-            B flow
-
-            What was the former name for Zambia before independence?
-            2
-            Southern Rhodesia
-            Malawi
-            Northern Rhodesia
-            East Rhodesia
-
-            Who declared the motto "One Zambia, One Nation"?
-            3
-            Levy Mwanawasa
-            FTJ Chiluba
-            Edgar Lungu
-            David K Kaunda
-
-            Who declared Zambia as a Christian Nation?
-            3
-            David  K Kaunda
-            Levy Mwanawasa
-            Edgar Lungu
-            Fredrick Jacob Titus Chiluba
-
-            Who was Zambia's first ever white vice president?
-            1
-            Lt Barry
-            Guy Scott
-            David Livingstone
-            Mungo Park
-
-            What was the name of the late legend who was best known for singing Kalindula?
-            2
-            P Jay
-            Amayenge
-            PK Chishala
-            Paul Ngozi
-
-            Name the rule that allows a person to acquire citizenship of ones parents.
-            0
-            Jus sanguinis
-            Jus soli
-            Legal aspect
-            Rule of residence
-
-            In the 1991 presidential elections, Fredrick Chiluba won the elections with absolute majority. He obtained over 50 percent of the votes cast. Which electoral system was used?
-            1
-            Mixed Member Proportionality System (MMPS)
-            Proportional Representation System(PRS)
-            Single Member Majoritarian System (SMMS)
-            Single Member Plurality System(SMPS)
-
-            Drugs found in household products such as glue, deodorants like sprays, perfumes and fuel gases are called\s
-            1
-            Depressants
-            Inhalants
-            Narcotics
-            Stimulants
-
-            What kind of corruption is associated with the electoral system?
-            3
-            Economic corruption
-            Grand corruption
-            Petty corruption
-            Political corruption
-
-            Part Ill of the Zambian constitution consists of the.
-            1
-            Citizenship
-            Fundamental rights
-            Judicature
-            National sovereignty
-
-            Misdemeanors are...
-            2
-            Crimes of basic intent
-            Crimes of specific intent
-            Petty crimes
-            Serious crimes
-
-            Bobo is fifteen years old and she has been raped repeatedly by her step father since she was ten years old. This form of child abuse is known as child.
-            1
-            battering
-            defilement
-            neglect
-            prostitution
-
-            When an alien obtains full rights and privileges of a natural citizen of his or her adopted state and there is no discrimination of any sort, the naturalization is said to be.
-            0
-            Complete
-            Neutral
-            Partial
-            Renounced
-
-            A government which is illegitimate, incompetent, unaccountable and does not respect human rights and the rule of law is an example of.
-            1
-            Autocracy
-            Bad governance
-            Good governance
-            Monarchy
-
-            One of the processes of a constitution making process is the process of adoption. What does the term adoption mean?
-            0
-            assume, embrace or take on the constitution.
-            amend, change or overhaul the entire constitution.
-            reject, disapprove or condemn the constitution.
-            take back the constitution to its old form.
-
-            What do you understand by the term 'circulating capital'?
-            1
-            Money that is acquired after selling goods Money from the general public paid as tax
-            Money paid to an insurance company
-            Surplus from industries and factories
-
-            The Supreme Court is not a trial court unless the case is a presidential election petition. Instead it hears appeals on....
-            1
-            Issues of morality other than law
-            Issues of legality other than facts
-            Questions of facts other than laws
-            Questions of law other than facts
-
-            Chipego a pupil Civic Education at Canisius Secondary School was requested to advise on how the property of Mr Hamukoyo his grandfather would be shared to the beneficiaries after he died without leaving a will. What percentage should Chipego advise to be given to Mr Hamukoyo's wife especially that there were no dependents?
-            3
-            10%
-            20%
-            30%
-            50%
-
-            Peace is very important to human affairs such that without it, development suffers. Which method of promoting peace refers to a way of living and accepting opposing viewpoints whereby people expressing different viewpoints are not condemned and punished?
-            3
-            Forgiveness
-            Justice
-            Respect
-            Tolerance
-
-            At community level many people experience the adverse effects of HIV/AIDS pandemic. The major social challenge that the disease has paused on the Zambian Society is........
-            0
-            A lot of resources are spent on looking after the sick
-            A lot of girls have gone into prostitution
-            Industries and other enterprises lose money
-            The emergence of child headed homes
-
-            The optional protocol to the Convention on the Rights of a Child prohibits the following except Child
-            3
-            Pornography
-            Prostitution
-            Trafficking
-            Welfare
-
-            The Choobe Village headman evicted all non-Tonga speaking people in his village and gave out their land to his relatives and friends. The form of violence is referred to as..
-            3
-            Gender violence
-            Physical violence
-            Psychological violence
-            Structural violence
-
-            When Botha died, the administrator shared the property according to the will he left. This means he died...
-            2
-            Interstate
-            Testate
-            Testator
-            Testatrix
-
-            At family level poverty can be defined as the absence of in the family.
-            0
-            basic needs
-            clothes
-            реасе
-            water
-
-            Which of the following is the correct procedure in the criminal justice process for the first three steps?
-            0
-            Arrest, Plea, Trial\s
-            Arrest, Trial, Plea\s
-            Trial, Plea, Arrest\s
-            Plea, Trial, Arrest
-
-            A social worker form the Human Rights Commission visited Kasenga Community School Child Rights club and explained to the members that human rights cannot be taken away nor given away and that people have rights even when these are being violated. Which characteristic of human rights explains the above statement?
-            2
-            Inalienable
-            Inherent
-            Indivisible
-            Interrelated
-
-            Pollution of the air, soil and water is an environmental problem Zambia faces today. This results in the increase of generation of waste due to industrialization and population increase in recent years. Which of the following is directly responsible for the loss of aquatic life?
-            1
-            Effluents
-            Defoliants
-            Plant regulator
-            Residual charges
-
-            Renunciation means........
-            2
-            A person living a country which is not his/hers.
-            Born and living in a country of one's parents.
-            Declaring formally that one will no longer have anything to do with something.
-            Duty, support and loyalty one offers to the state.
-
-            The process of lessening the suffering of the poor by meeting their immediate needs is called
-            0
-            alleviation
-            destruction
-            eradication
-            reduction
-
-            In Zambia's national parks, there are several endangered species (animals). Which of the following is a vulnerable species?
-            1
-            Black lechwe
-            Black rhino
-            Elephant
-            Wild dog""";*/
-
+    static String defaultQuestions = "Who was the first president of Zambia?\n" +
+            "0\n" +
+            "Kenneth Kaunda\n" +
+            "Harry Nkumbula\n" +
+            "Simon Mwansa Kapwepwe\n" +
+            "Levy Mwanawasa\n" +
+            "\n" +
+            "Which European explorer first visited Zambia in 1798?\n" +
+            "3\n" +
+            "David Livingstone\n" +
+            "John Speke\n" +
+            "Vasco da Gama\n" +
+            "Francisco de Lacerda\n" +
+            "\n" +
+            "The name \"Zambia\" comes from which river?\n" +
+            "1\n" +
+            "Congo River\n" +
+            "Zambezi River\n" +
+            "Kafue River\n" +
+            "Luangwa River\n" +
+            "\n" +
+            "Which tribe was dominant in Zambia during the pre-colonial era?\n" +
+            "0\n" +
+            "Bemba\n" +
+            "Ngoni\n" +
+            "Lozi\n" +
+            "Chewa\n" +
+            "\n" +
+            "Who led the fight for Zambia's independence?\n" +
+            "0\n" +
+            "Kenneth Kaunda\n" +
+            "Harry Nkumbula\n" +
+            "Simon Mwansa Kapwepwe\n" +
+            "Robert Makasa\n" +
+            "\n" +
+            "In which year did Zambia gain independence?\n" +
+            "1\n" +
+            "1957\n" +
+            "1964\n" +
+            "1970\n" +
+            "1980\n" +
+            "\n" +
+            "Which mineral was the mainstay of Zambia's economy during colonial times?\n" +
+            "0\n" +
+            "Copper\n" +
+            "Gold\n" +
+            "Silver\n" +
+            "Tin\n" +
+            "\n" +
+            "The British South Africa Company (BSAC) ruled Zambia as a colony from:\n" +
+            "0\n" +
+            "1890 to 1924\n" +
+            "1900 to 1930\n" +
+            "1895 to 1910\n" +
+            "1888 to 1905\n" +
+            "\n" +
+            "The Mau Mau rebellion occurred in which year?\n" +
+            "0\n" +
+            "1952\n" +
+            "1960\n" +
+            "1955\n" +
+            "1947\n" +
+            "\n" +
+            "Who was the leader of the ANC during the struggle for independence?\n" +
+            "0\n" +
+            "Kenneth Kaunda\n" +
+            "Harry Nkumbula\n" +
+            "Simon Mwansa Kapwepwe\n" +
+            "Jason Moyo\n" +
+            "\n" +
+            "The Federation of Rhodesia and Nyasaland was formed in:\n" +
+            "0\n" +
+            "1953\n" +
+            "1963\n" +
+            "1950\n" +
+            "1948\n" +
+            "\n" +
+            "The Zambian Kwacha replaced which currency in 1968?\n" +
+            "3\n" +
+            "British Pound\n" +
+            "US Dollar\n" +
+            "South African Rand\n" +
+            "Rhodesian Dollar\n" +
+            "\n" +
+            "The Freedom Statue in Lusaka commemorates:\n" +
+            "0\n" +
+            "Zambia's independence\n" +
+            "The end of the Cold War\n" +
+            "The fight against apartheid\n" +
+            "The Mau Mau rebellion\n" +
+            "\n" +
+            "The Barotseland Agreement of 1964 was between:\n" +
+            "2\n" +
+            "Zambia and Britain\n" +
+            "Zambia and South Africa\n" +
+            "Zambia and the Barotse Royal Establishment\n" +
+            "Zambia and the UN\n" +
+            "\n" +
+            "Who was the first African to visit Europe from Zambia?\n" +
+            "2\n" +
+            "David Livingstone\n" +
+            "Mwata Kazembe\n" +
+            "King Lewanika\n" +
+            "Mpezeni\n" +
+            "\n" +
+            "The Bemba people migrated to Zambia from:\n" +
+            "1\n" +
+            "Angola\n" +
+            "Congo\n" +
+            "Tanzania\n" +
+            "Mozambique\n" +
+            "\n" +
+            "The Zambezi River forms the border between Zambia and:\n" +
+            "3\n" +
+            "Zimbabwe\n" +
+            "Botswana\n" +
+            "Namibia\n" +
+            "Mozambique\n" +
+            "\n" +
+            "The ancient kingdom of Mapungubwe was located in:\n" +
+            "2\n" +
+            "Zambia\n" +
+            "Zimbabwe\n" +
+            "South Africa\n" +
+            "Botswana\n" +
+            "\n" +
+            "The Zambian national anthem is called:\n" +
+            "3\n" +
+            "Stand and Sing of Zambia\n" +
+            "God Bless Africa\n" +
+            "Free Zambia\n" +
+            "Lumbanyeni\n" +
+            "\n" +
+            "The University of Zambia was founded in:\n" +
+            "2\n" +
+            "1965\n" +
+            "1970\n" +
+            "1969\n" +
+            "1966\n" +
+            "\n" +
+            "What was the former name for Kabwe?\n" +
+            "1\n" +
+            "Broken Man\n" +
+            "Broken Hill\n" +
+            "Broken Place\n" +
+            "Sunda Station\n" +
+            "\n" +
+            "What was the former name for Chipata?\n" +
+            "2\n" +
+            "fort Rosemary\n" +
+            "Fort Martin\n" +
+            "Fort Jameson\n" +
+            "Chipata Extension\n" +
+            "\n" +
+            "Who killed the Mailon brothers?\n" +
+            "1\n" +
+            "The Neighbors\n" +
+            "Zambian Army\n" +
+            "The police\n" +
+            "Suicide\n" +
+            "\n" +
+            "What was the first name for Mushala?\n" +
+            "2\n" +
+            "Adam\n" +
+            "Aaron\n" +
+            "Adamson\n" +
+            "Amos\n" +
+            "\n" +
+            "Who was the oldest from the late Mailon brothers?\n" +
+            "2\n" +
+            "Fabian\n" +
+            "Stephen\n" +
+            "Mika\n" +
+            "Tunde\n" +
+            "\n" +
+            "Which part of Zambia do we find the Victoria Falls?\n" +
+            "0\n" +
+            "Southern\n" +
+            "Eastern\n" +
+            "Central\n" +
+            "Lusaka\n" +
+            "\n" +
+            "What tribe celebrates the Likumbi Lya Mize tradition ceremony?\n" +
+            "3\n" +
+            "LOZI\n" +
+            "Ila\n" +
+            "Tonga\n" +
+            "Luvale\n" +
+            "\n" +
+            "In which year did Zambia experience a coup d'etat?\n" +
+            "0\n" +
+            "1997\n" +
+            "1964\n" +
+            "1992\n" +
+            "1973\n" +
+            "\n" +
+            "In which year did the famous Zanko Mpundu break the chains?\n" +
+            "1\n" +
+            "1964\n" +
+            "1963\n" +
+            "2001\n" +
+            "1997\n" +
+            "\n" +
+            "Name the oldest university in Zambia.\n" +
+            "3\n" +
+            "ZCAS\n" +
+            "CBU\n" +
+            "UNILUS\n" +
+            "UNZA\n" +
+            "\n" +
+            "In which year was the first president of Zambia born?\n" +
+            "1\n" +
+            "1900\n" +
+            "1924\n" +
+            "1964\n" +
+            "1918\n" +
+            "\n" +
+            "What was the middle name for the late third republican president of Zambia?\n" +
+            "2\n" +
+            "Pule\n" +
+            "Patson\n" +
+            "Patrick\n" +
+            "Prince\n" +
+            "\n" +
+            "Who was the first female VEEP of Zambia?\n" +
+            "2\n" +
+            "Inonge Wena\n" +
+            "Mutale Nalumango\n" +
+            "Inonge Wina\n" +
+            "Ireen Mambilima\n" +
+            "\n" +
+            "Who was the leader of the Lumpa Church in Zambia?\n" +
+            "0\n" +
+            "Alice Leshina\n" +
+            "Maino Soko\n" +
+            "Dora Siliya\n" +
+            "Esther Lungu\n" +
+            "\n" +
+            "Which year did Zambia lift the AFCON?\n" +
+            "3\n" +
+            "2013\n" +
+            "1964\n" +
+            "1990\n" +
+            "2012\n" +
+            "\n" +
+            "Which Zambian artist met Americans Former President Barrack Obama at the White House?\n" +
+            "3\n" +
+            "Shenky\n" +
+            "Dalitso\n" +
+            "Chef 187\n" +
+            "B flow\n" +
+            "\n" +
+            "What was the former name for Zambia before independence?\n" +
+            "2\n" +
+            "Southern Rhodesia\n" +
+            "Malawi\n" +
+            "Northern Rhodesia\n" +
+            "East Rhodesia\n" +
+            "\n" +
+            "Who declared the motto \"One Zambia, One Nation\"?\n" +
+            "3\n" +
+            "Levy Mwanawasa\n" +
+            "FTJ Chiluba\n" +
+            "Edgar Lungu\n" +
+            "David K Kaunda\n" +
+            "\n" +
+            "Who declared Zambia as a Christian Nation?\n" +
+            "3\n" +
+            "David  K Kaunda\n" +
+            "Levy Mwanawasa\n" +
+            "Edgar Lungu\n" +
+            "Fredrick Jacob Titus Chiluba\n" +
+            "\n" +
+            "Who was Zambia's first ever white vice president?\n" +
+            "1\n" +
+            "Lt Barry\n" +
+            "Guy Scott\n" +
+            "David Livingstone\n" +
+            "Mungo Park\n" +
+            "\n" +
+            "What was the name of the late legend who was best known for singing Kalindula?\n" +
+            "2\n" +
+            "P Jay\n" +
+            "Amayenge\n" +
+            "PK Chishala\n" +
+            "Paul Ngozi\n" +
+            "\n" +
+            "Name the rule that allows a person to acquire citizenship of ones parents.\n" +
+            "0\n" +
+            "Jus sanguinis\n" +
+            "Jus soli\n" +
+            "Legal aspect\n" +
+            "Rule of residence\n" +
+            "\n" +
+            "In the 1991 presidential elections, Fredrick Chiluba won the elections with absolute majority. He obtained over 50 percent of the votes cast. Which electoral system was used?\n" +
+            "1\n" +
+            "Mixed Member Proportionality System (MMPS)\n" +
+            "Proportional Representation System(PRS)\n" +
+            "Single Member Majoritarian System (SMMS)\n" +
+            "Single Member Plurality System(SMPS)\n" +
+            "\n" +
+            "Drugs found in household products such as glue, deodorants like sprays, perfumes and fuel gases are called\n" +
+            "1\n" +
+            "Depressants\n" +
+            "Inhalants\n" +
+            "Narcotics\n" +
+            "Stimulants\n" +
+            "\n" +
+            "What kind of corruption is associated with the electoral system?\n" +
+            "3\n" +
+            "Economic corruption\n" +
+            "Grand corruption\n" +
+            "Petty corruption\n" +
+            "Political corruption\n" +
+            "\n" +
+            "Part Ill of the Zambian constitution consists of the.\n" +
+            "1\n" +
+            "Citizenship\n" +
+            "Fundamental rights\n" +
+            "Judicature\n" +
+            "National sovereignty\n" +
+            "\n" +
+            "Misdemeanors are...\n" +
+            "2\n" +
+            "Crimes of basic intent\n" +
+            "Crimes of specific intent\n" +
+            "Petty crimes\n" +
+            "Serious crimes\n" +
+            "\n" +
+            "Bobo is fifteen years old and she has been raped repeatedly by her step father since she was ten years old. This form of child abuse is known as child.\n" +
+            "1\n" +
+            "battering\n" +
+            "defilement\n" +
+            "neglect\n" +
+            "prostitution\n" +
+            "\n" +
+            "When an alien obtains full rights and privileges of a natural citizen of his or her adopted state and there is no discrimination of any sort, the naturalization is said to be.\n" +
+            "0\n" +
+            "Complete\n" +
+            "Neutral\n" +
+            "Partial\n" +
+            "Renounced\n" +
+            "\n" +
+            "A government which is illegitimate, incompetent, unaccountable and does not respect human rights and the rule of law is an example of.\n" +
+            "1\n" +
+            "Autocracy\n" +
+            "Bad governance\n" +
+            "Good governance\n" +
+            "Monarchy\n" +
+            "\n" +
+            "One of the processes of a constitution making process is the process of adoption. What does the term adoption mean?\n" +
+            "0\n" +
+            "assume, embrace or take on the constitution.\n" +
+            "amend, change or overhaul the entire constitution.\n" +
+            "reject, disapprove or condemn the constitution.\n" +
+            "take back the constitution to its old form.\n" +
+            "\n" +
+            "What do you understand by the term 'circulating capital'?\n" +
+            "1\n" +
+            "Money that is acquired after selling goods Money from the general public paid as tax\n" +
+            "Money paid to an insurance company\n" +
+            "Surplus from industries and factories\n" +
+            "\n" +
+            "The Supreme Court is not a trial court unless the case is a presidential election petition. Instead it hears appeals on....\n" +
+            "1\n" +
+            "Issues of morality other than law\n" +
+            "Issues of legality other than facts\n" +
+            "Questions of facts other than laws\n" +
+            "Questions of law other than facts\n" +
+            "\n" +
+            "Chipego a pupil Civic Education at Canisius Secondary School was requested to advise on how the property of Mr Hamukoyo his grandfather would be shared to the beneficiaries after he died without leaving a will. What percentage should Chipego advise to be given to Mr Hamukoyo's wife especially that there were no dependents?\n" +
+            "3\n" +
+            "10%\n" +
+            "20%\n" +
+            "30%\n" +
+            "50%\n" +
+            "\n" +
+            "Peace is very important to human affairs such that without it, development suffers. Which method of promoting peace refers to a way of living and accepting opposing viewpoints whereby people expressing different viewpoints are not condemned and punished?\n" +
+            "3\n" +
+            "Forgiveness\n" +
+            "Justice\n" +
+            "Respect\n" +
+            "Tolerance\n" +
+            "\n" +
+            "At community level many people experience the adverse effects of HIV/AIDS pandemic. The major social challenge that the disease has paused on the Zambian Society is........\n" +
+            "0\n" +
+            "A lot of resources are spent on looking after the sick\n" +
+            "A lot of girls have gone into prostitution\n" +
+            "Industries and other enterprises lose money\n" +
+            "The emergence of child headed homes\n" +
+            "\n" +
+            "The optional protocol to the Convention on the Rights of a Child prohibits the following except Child\n" +
+            "3\n" +
+            "Pornography\n" +
+            "Prostitution\n" +
+            "Trafficking\n" +
+            "Welfare\n" +
+            "\n" +
+            "The Choobe Village headman evicted all non-Tonga speaking people in his village and gave out their land to his relatives and friends. The form of violence is referred to as..\n" +
+            "3\n" +
+            "Gender violence\n" +
+            "Physical violence\n" +
+            "Psychological violence\n" +
+            "Structural violence\n" +
+            "\n" +
+            "When Botha died, the administrator shared the property according to the will he left. This means he died...\n" +
+            "2\n" +
+            "Interstate\n" +
+            "Testate\n" +
+            "Testator\n" +
+            "Testatrix\n" +
+            "\n" +
+            "At family level poverty can be defined as the absence of in the family.\n" +
+            "0\n" +
+            "basic needs\n" +
+            "clothes\n" +
+            "реасе\n" +
+            "water\n" +
+            "\n" +
+            "Which of the following is the correct procedure in the criminal justice process for the first three steps?\n" +
+            "0\n" +
+            "Arrest, Plea, Trial\n" +
+            "Arrest, Trial, Plea\n" +
+            "Trial, Plea, Arrest\n" +
+            "Plea, Trial, Arrest\n" +
+            "\n" +
+            "A social worker form the Human Rights Commission visited Kasenga Community School Child Rights club and explained to the members that human rights cannot be taken away nor given away and that people have rights even when these are being violated. Which characteristic of human rights explains the above statement?\n" +
+            "2\n" +
+            "Inalienable\n" +
+            "Inherent\n" +
+            "Indivisible\n" +
+            "Interrelated\n" +
+            "\n" +
+            "Pollution of the air, soil and water is an environmental problem Zambia faces today. This results in the increase of generation of waste due to industrialization and population increase in recent years. Which of the following is directly responsible for the loss of aquatic life?\n" +
+            "1\n" +
+            "Effluents\n" +
+            "Defoliants\n" +
+            "Plant regulator\n" +
+            "Residual charges\n" +
+            "\n" +
+            "Renunciation means........\n" +
+            "2\n" +
+            "A person living a country which is not his/hers.\n" +
+            "Born and living in a country of one's parents.\n" +
+            "Declaring formally that one will no longer have anything to do with something.\n" +
+            "Duty, support and loyalty one offers to the state.\n" +
+            "\n" +
+            "The process of lessening the suffering of the poor by meeting their immediate needs is called\n" +
+            "0\n" +
+            "alleviation\n" +
+            "destruction\n" +
+            "eradication\n" +
+            "reduction\n" +
+            "\n" +
+            "In Zambia's national parks, there are several endangered species (animals). Which of the following is a vulnerable species?\n" +
+            "1\n" +
+            "Black lechwe\n" +
+            "Black rhino\n" +
+            "Elephant\n" +
+            "Wild dog\n" +
+            "\n" +
+            "What is the capital city of Zambia?\n" +
+            "1\n" +
+            "Harare\n" +
+            "Lusaka\n" +
+            "Pretoria\n" +
+            "Gaborone\n" +
+            "\n" +
+            "Which river forms part of Zambia’s southern border with Zimbabwe?\n" +
+            "2\n" +
+            "Congo River\n" +
+            "Kafue River\n" +
+            "Zambezi River\n" +
+            "Luangwa River\n" +
+            "\n" +
+            "What is the most populated city in Zambia?\n" +
+            "2\n" +
+            "Kitwe\n" +
+            "Ndola\n" +
+            "Lusaka\n" +
+            "Livingstone\n" +
+            "\n" +
+            "What is the provincial capital of Central Province?\n" +
+            "1\n" +
+            "Kabwe\n" +
+            "Ndola\n" +
+            "Mufulira\n" +
+            "Kitwe\n" +
+            "\n" +
+            "What is Zambia’s main export?\n" +
+            "2\n" +
+            "Gold\n" +
+            "Diamonds\n" +
+            "Copper\n" +
+            "Oil\n" +
+            "\n" +
+            "What is the official language of Zambia?\n" +
+            "1\n" +
+            "Portuguese\n" +
+            "English\n" +
+            "Swahili\n" +
+            "French\n" +
+            "\n" +
+            "Which lake is shared by Zambia and Tanzania?\n" +
+            "2\n" +
+            "Lake Mweru\n" +
+            "Lake Victoria\n" +
+            "Lake Tanganyika\n" +
+            "Lake Malawi\n" +
+            "\n" +
+            "What is the currency of Zambia?\n" +
+            "2\n" +
+            "Zambian dollar\n" +
+            "Zambian pound\n" +
+            "Zambian kwacha\n" +
+            "Zambian shilling\n" +
+            "\n" +
+            "What is Zambia’s climate type?\n" +
+            "3\n" +
+            "Tundra\n" +
+            "Mediterranean\n" +
+            "Desert\n" +
+            "Tropical\n" +
+            "\n" +
+            "Which river flows into the Victoria Falls?\n" +
+            "3\n" +
+            "Kafue River\n" +
+            "Luangwa River\n" +
+            "Congo River\n" +
+            "Zambezi River\n" +
+            "\n" +
+            "What is the highest point in Zambia?\n" +
+            "1\n" +
+            "Kalambo Falls\n" +
+            "Mafinga Central\n" +
+            "Nyika Plateau\n" +
+            "Chisanga Falls\n" +
+            "\n" +
+            "Which country borders Zambia to the west?\n" +
+            "2\n" +
+            "Mozambique\n" +
+            "Tanzania\n" +
+            "Angola\n" +
+            "Malawi\n" +
+            "\n" +
+            "What is the largest man made lake in Zambia?\n" +
+            "0\n" +
+            "Lake Tanganyika\n" +
+            "Lake Kariba\n" +
+            "Lake Mweru\n" +
+            "Lake Bangweulu\n" +
+            "\n" +
+            "What is the primary religion in Zambia?\n" +
+            "1\n" +
+            "Islam\n" +
+            "Christianity\n" +
+            "Buddhism\n" +
+            "Hinduism\n" +
+            "\n" +
+            "Which city is known as the tourist capital of Zambia?\n" +
+            "1\n" +
+            "Livingstone\n" +
+            "Lusaka\n" +
+            "Kitwe\n" +
+            "Ndola\n" +
+            "\n" +
+            "What is Zambia's main agricultural product?\n" +
+            "2\n" +
+            "Rice\n" +
+            "Barley\n" +
+            "Maize\n" +
+            "Wheat\n" +
+            "\n" +
+            "Which waterfall is located on the border between Zambia and Zimbabwe?\n" +
+            "1\n" +
+            "Ngonye Falls\n" +
+            "Victoria Falls\n" +
+            "Lumangwe Falls\n" +
+            "Kalambo Falls\n" +
+            "\n" +
+            "Which country borders Zambia to the east?\n" +
+            "1\n" +
+            "Namibia\n" +
+            "Malawi\n" +
+            "Botswana\n" +
+            "Tanzania\n" +
+            "\n" +
+            "Which Zambian River is one of the two largest tributaries of the Zambezi?\n" +
+            "1\n" +
+            "Kafue River\n" +
+            "Congo River\n" +
+            "Lusemfwa River\n" +
+            "Chambeshi River\n" +
+            "\n" +
+            "What is the name of the longest river in Zambia?\n" +
+            "1\n" +
+            "Zambezi River\n" +
+            "Congo River\n" +
+            "Kafue River\n" +
+            "Luangwa River\n" +
+            "\n" +
+            "Which Zambian province is Lusaka located in?\n" +
+            "3\n" +
+            "Copperbelt Province\n" +
+            "Eastern Province\n" +
+            "Western Province\n" +
+            "Lusaka Province\n" +
+            "\n" +
+            "What is the main industry in Zambia?\n" +
+            "2\n" +
+            "Tourism\n" +
+            "Agriculture\n" +
+            "Mining\n" +
+            "Manufacturing\n" +
+            "\n" +
+            "What body of water is created by the Kariba Dam?\n" +
+            "4\n" +
+            "Lake Malawi\n" +
+            "Lake Tanganyika\n" +
+            "Lake Mweru\n" +
+            "Lake Kariba\n" +
+            "\n" +
+            "Which Zambian Province is known for its copper mines?\n" +
+            "2\n" +
+            "Lusaka\n" +
+            "Northern\n" +
+            "Copperbelt\n" +
+            "Southern\n" +
+            "\n" +
+            "Which province in Zambia is known for its tea plantations?\n" +
+            "3\n" +
+            "Western Province\n" +
+            "Eastern Province\n" +
+            "Southern Province\n" +
+            "Luapula Province\n" +
+            "\n" +
+            "How many languages are in Zambia?\n" +
+            "3\n" +
+            "15\n" +
+            "20\n" +
+            "73\n" +
+            "72\n" +
+            "\n" +
+            "Which country borders Zambia to the southeast?\n" +
+            "0\n" +
+            "Mozambique\n" +
+            "Botswana\n" +
+            "Namibia\n" +
+            "Zimbabwe\n" +
+            "\n" +
+            "Which city is located near Victoria Falls in Zambia?\n" +
+            "1\n" +
+            "Lusaka\n" +
+            "Livingstone\n" +
+            "Ndola\n" +
+            "Kitwe\n" +
+            "\n" +
+            "What tribe performs the Kuomboka ceremony?\n" +
+            "0\n" +
+            "Lozi\n" +
+            "Bemba\n" +
+            "Tonga\n" +
+            "Ngoni\n" +
+            "\n" +
+            "Which is the smallest province in Zambia by area?\n" +
+            "3\n" +
+            "Copperbelt Province\n" +
+            "Central Province\n" +
+            "Western Province\n" +
+            "Lusaka Province\n" +
+            "\n" +
+            "Which game park is well known for bird viewing in Zambia?\n" +
+            "3\n" +
+            "Kafue National Park\n" +
+            "North Luangwa National Park\n" +
+            "Lower Zambezi National Park\n" +
+            "Lochinvar National Park\n" +
+            "\n" +
+            "Which river forms part of Zambia’s northern border with Tanzania?\n" +
+            "2\n" +
+            "Zambezi River\n" +
+            "Luangwa River\n" +
+            "Kalambo River\n" +
+            "Kafue River\n" +
+            "\n" +
+            "What is Zambia’s main energy source?\n" +
+            "3\n" +
+            "Solar power\n" +
+            "Nuclear power\n" +
+            "Coal\n" +
+            "Hydroelectric power\n" +
+            "\n" +
+            "Zambia is located in which continent?\n" +
+            "0\n" +
+            "Africa\n" +
+            "Europe\n" +
+            "Asia\n" +
+            "South America\n" +
+            "\n" +
+            "Which country borders Zambia to the southwest?\n" +
+            "3\n" +
+            "Malawi\n" +
+            "Angola\n" +
+            "Tanzania\n" +
+            "Namibia\n" +
+            "\n" +
+            "What is a traditional food staple in Zambia?\n" +
+            "3\n" +
+            "Pasta\n" +
+            "Bread\n" +
+            "Rice\n" +
+            "Nshima\n" +
+            "\n" +
+            "What is the main type of vegetation found in most of Zambia?\n" +
+            "2\n" +
+            "Rainforest\n" +
+            "Desert\n" +
+            "Savannah\n" +
+            "Tundra\n" +
+            "\n" +
+            "How many provinces does Zambia have?\n" +
+            "3\n" +
+            "12\n" +
+            "13\n" +
+            "7\n" +
+            "10";
 
     Question(String question, ArrayList<String> options, int correctAns) {
         this.question = question;
@@ -525,6 +792,8 @@ class QuizApp extends JFrame {
     JPanel mainPanel;
     ArrayList<Question> questions;
 
+    int nQuestions = 10;
+
     public QuizApp() {
         questions = Question.loadQuestions();
 
@@ -533,7 +802,7 @@ class QuizApp extends JFrame {
         add(mainPanel);
 
         welcomePage = new WelcomePage(this);
-        quizPage = new QuizPage(this, questions);
+        quizPage = new QuizPage(this, RandomSelection.getRandomSelection(questions, nQuestions));
         endPage = new EndPage(this);
 
         // Add the screens with unique identifiers
@@ -552,6 +821,7 @@ class QuizApp extends JFrame {
             question.userSelection = -1;
         }
         quizPage.currentQuestionIndex = 0;
+        quizPage.questions = RandomSelection.getRandomSelection(questions, nQuestions);
         quizPage.updateView();
     }
 }
@@ -743,5 +1013,20 @@ class EndPage extends JPanel {
                 right += 1;
         }
         return right;
+    }
+}
+
+
+class RandomSelection {
+
+    public static <T> ArrayList<T> getRandomSelection(List<T> list, int n) {
+        if (n > list.size()) {
+            throw new IllegalArgumentException("n is larger than the list size.");
+        }
+
+        List<T> shuffledList = new ArrayList<>(list);
+        Collections.shuffle(shuffledList);
+
+        return new ArrayList<>(shuffledList.subList(0, n));
     }
 }
