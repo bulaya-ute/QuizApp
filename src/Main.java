@@ -666,7 +666,6 @@ class QuizPage extends JPanel {
     }
 
     boolean isOnLastQuestion() {
-        System.out.println("Number of loaded questions: " + questions.size());
         return currentQuestionIndex >= questions.size() - 1;
     }
 
@@ -697,10 +696,7 @@ class QuizPage extends JPanel {
         for (int optionIndex = 0; optionIndex < currentQuestion.options.size(); optionIndex++) {
             int finalOptionIndex = optionIndex;
 
-//            questionPanel.add(new JLabel(questionText + ""));
-
             JRadioButton radioButton = new JRadioButton(currentQuestion.options.get(optionIndex));
-
 
             // Add the radiobutton to the panel
             questionPanel.add(radioButton);
@@ -746,15 +742,11 @@ class QuizPage extends JPanel {
                 }
             });
         }
-
-
+        nextButton.setEnabled(userSelections.get(currentQuestionIndex) != -1);
+        prevButton.setEnabled(currentQuestionIndex > 0);
     }
 
     void toNextQuestion() {
-        // Disable the next button. It will be re-enabled by clicking one of the multiple-choice
-        // options
-        if
-        nextButton.setEnabled(false);
 
         // Check if there's room to go to the next question
         if (currentQuestionIndex < questions.size() - 2) {
@@ -765,6 +757,7 @@ class QuizPage extends JPanel {
     }
 
     void toPreviousQuestion() {
+        nextButton.setEnabled(userSelections.get(currentQuestionIndex) != -1);
         System.out.println("Previous question");
         // Check if there's room to go to the previous question
         if (currentQuestionIndex > 0) {
