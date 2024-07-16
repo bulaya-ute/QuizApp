@@ -829,27 +829,40 @@ class QuizApp extends JFrame {
 
 class WelcomePage extends JPanel {
     String title;
-    JButton startButton;
-    JButton settingsButton;
-    JButton exitButton;
-    GridLayout grid;
+    JButton startButton, settingsButton, exitButton;
+    JPanel mainPanel, buttonsPanel;
     QuizApp parentWindow;
+    Font font = new Font("SansSerif", Font.PLAIN, 18 );
+    Component vSpacer = Box.createRigidArea(new Dimension(60, 60));
+    Component hSpacer = Box.createRigidArea(new Dimension(60, 60));
 
     public WelcomePage(QuizApp parentWindow) {
-        super();
+        super(new BorderLayout());
+
+        // Initialise fields
+        startButton = new JButton("Start");
+        exitButton = new JButton("Exit");
+        settingsButton = new JButton("Settings");
+        mainPanel = new JPanel(new GridLayout(5, 1, 10, 40));
         this.parentWindow = parentWindow;
         this.title = "Quiz";
-        this.startButton = new JButton("Start");
-        startButton.addActionListener(e -> this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage"));
-        this.exitButton = new JButton("Exit");
-        this.exitButton.addActionListener(e -> System.exit(0));
-        this.grid = new GridLayout(5, 1, 10, 10);
 
-        this.setLayout(grid);  // Set the layout
-        this.add(new JLabel()); // Spacer
-        this.add(startButton);
-        this.add(exitButton);
-        this.add(new JLabel()); // Spacer
+        // Configure components
+        startButton.addActionListener(e -> this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage"));
+        startButton.setFont(font);
+        settingsButton.setFont(font);
+        exitButton.addActionListener(e -> System.exit(0));
+        exitButton.setFont(font);
+
+        // Populate the components
+        mainPanel.add(Box.createRigidArea(new Dimension(60, 40)));  // Vertical spacer
+        mainPanel.add(startButton);
+        mainPanel.add(settingsButton);
+        mainPanel.add(exitButton);
+        mainPanel.add(Box.createRigidArea(new Dimension(60, 40)));  // Vertical spacer
+        this.add(mainPanel, BorderLayout.CENTER);
+        this.add(Box.createRigidArea(new Dimension(150, 60)), BorderLayout.EAST);  // Horizontal spacer
+        this.add(Box.createRigidArea(new Dimension(150, 60)), BorderLayout.WEST);  // Horizontal spacer
     }
 }
 
@@ -857,39 +870,56 @@ class WelcomePage extends JPanel {
 class QuizPage extends JPanel {
     JButton prevButton, nextButton;
     JPanel mainPanel;
-    JPanel questionPanel;
-    JLabel questionText;
+    JPanel questionPanel, optionsPanel, bottomBar, topBar;
+    JLabel questionText, progressText, topQPSpacer, bottomQPSpacer;
     ArrayList<Question> questions;
     int currentQuestionIndex = 0;
     QuizApp parentWindow;
-    JPanel bottomBar;
+    Font progressFont, questionFont, buttonsFont;
 
     public QuizPage(QuizApp parentWindow, ArrayList<Question> questions) {
+        super(new BorderLayout());
+
         // Initialize fields
+        progressFont = new Font("SansSerif", Font.PLAIN, 28);
+        questionFont = new Font("SansSerif", Font.PLAIN, 20);
+        progressFont = new Font("SansSerif", Font.PLAIN, 18);
         nextButton = new JButton();
-        nextButton.addActionListener(e -> {
-        });
-        nextButton.setEnabled(false);
         prevButton = new JButton("Previous");
         questionText = new JLabel("- Question not yet loaded -");
-        questionPanel = new JPanel();
-//        userSelections = new ArrayList<>();
-
-        prevButton.addActionListener(e -> toPreviousQuestion());
+        progressText = new JLabel(" - Loading progress -");
+        questionPanel = new JPanel(new GridLayout(5, 1));
         bottomBar = new JPanel(new GridLayout(1, 2));
-        bottomBar.add(prevButton);
-        bottomBar.add(nextButton);
+        topBar = new JPanel(new GridLayout(2, 1));
+        mainPanel = new JPanel(new BorderLayout());
+        optionsPanel = new JPanel(new GridLayout());
+        topQPSpacer = new JLabel();
+        bottomQPSpacer = new JLabel();
         this.questions = questions;
         this.parentWindow = parentWindow;
 
-        mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(questionText, BorderLayout.NORTH);
+        // Configure components
+        nextButton.addActionListener(e -> {});
+        prevButton.addActionListener(e -> toPreviousQuestion());
+        nextButton.setEnabled(false);  // Must be disabled by default. Re-enabled by selecting an option
+        nextButton.setFont(buttonsFont);
+        progressText.setHorizontalAlignment(SwingConstants.CENTER);
+        progressText.setFont(progressFont);
+        prevButton.setFont(buttonsFont);
+
+        // Populate containers
+        bottomBar.add(prevButton);
+        bottomBar.add(nextButton);
+        questionPanel.add(questionText, BorderLayout.NORTH);
+        questionPanel.add(optionsPanel, BorderLayout.CENTER);
+
+        mainPanel.add(progressText, BorderLayout.NORTH);
         mainPanel.add(questionPanel, BorderLayout.CENTER);
         mainPanel.add(bottomBar, BorderLayout.SOUTH);
+        mainPanel.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.WEST); // Spacer
+        mainPanel.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.EAST); // Spacer
 
-        this.add(mainPanel);
-
-
+        this.add(mainPanel, BorderLayout.CENTER);
         this.updateView();
     }
 
@@ -903,14 +933,18 @@ class QuizPage extends JPanel {
 
         questionText.setText(currentQuestionIndex + 1 + ". " + currentQuestion.question);
 
-        // Empty the existing multiple choice options
+        // Empty the existing panel
         mainPanel.remove(questionPanel); // Remove the center component
         mainPanel.revalidate(); // Revalidate the panel
         mainPanel.repaint(); // Repaint the panel
 
-        questionPanel = new JPanel(new GridLayout(currentQuestion.options.size(), 1));
-
+        // Create a new, empty panel
+        questionPanel = new JPanel(new GridLayout(currentQuestion.options.size() + 3, 1));
         mainPanel.add(questionPanel, BorderLayout.CENTER);
+
+        // Add the top spacer and question text to the question panel
+        questionPanel.add(topQPSpacer);
+        questionPanel.add(questionText);
 
         // Create button group for radio buttons
         ButtonGroup buttonGroup = new ButtonGroup();
@@ -943,6 +977,9 @@ class QuizPage extends JPanel {
             });
 
         }
+
+        // Add the bottom spacer
+        questionPanel.add(bottomQPSpacer);
 
         // Update the text and functionality of the 'next' button
         if (currentQuestionIndex == questions.size() - 1) {
@@ -982,6 +1019,21 @@ class QuizPage extends JPanel {
         this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "EndPage");
         parentWindow.endPage.updateText();
     }
+}
+
+
+class SettingsPage extends JPanel {
+    QuizApp parentWindow;
+    JPanel mainPanel;
+    JSlider slider;
+
+    public SettingsPage(QuizApp parentWindow) {
+        this.parentWindow = parentWindow;
+        this.mainPanel = new JPanel(new BorderLayout());
+        this.slider = new JSlider();
+        System.out.println(2 / 0);
+    }
+
 }
 
 
