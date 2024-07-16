@@ -13,32 +13,6 @@ public class Main {
 }
 
 
-class QuestionData {
-    static String questionsData =
-            """
-                    Who was the first president of Zambia?
-                    0
-                    Kenneth Kaunda
-                    Harry Nkumbula
-                    Simon Mwansa Kapwepwe
-                    Levy Mwanawasa
-
-                    Which European explorer first visited Zambia in 1798?
-                    2
-                    David Livingstone
-                    John Speke
-                    Vasco da Gama
-                    Francisco de Lacerda
-
-                    The name "Zambia" comes from which river?
-                    3
-                    Congo River
-                    Zambezi River
-                    Kafue River
-                    Luangwa River""";
-}
-
-
 class Question {
     // Assumption is that questions are separated by two blank lines
     // Each question consists of lines, first one being the problem statement itself,
@@ -77,9 +51,9 @@ class Question {
             Bemba
             Ngoni
             Lozi
-            Chewa
+            Chewa""";
 
-            Who led the fight for Zambia's independence?
+            /*Who led the fight for Zambia's independence?
             0
             Kenneth Kaunda
             Harry Nkumbula
@@ -510,7 +484,7 @@ class Question {
             Black lechwe
             Black rhino
             Elephant
-            Wild dog""";
+            Wild dog""";*/
 
 
     Question(String question, ArrayList<String> options, int correctAns) {
@@ -677,10 +651,9 @@ class QuizPage extends JPanel {
 
         Question currentQuestion = questions.get(currentQuestionIndex);
 
-        questionText.setText(currentQuestion.question);
+        questionText.setText(currentQuestionIndex + 1 + ". "+ currentQuestion.question);
 
-        // Initialise the panel that will contain the question as well as the multiple choice
-        // options
+        // Empty the existing multiple choice options
         mainPanel.remove(questionPanel); // Remove the center component
         mainPanel.revalidate(); // Revalidate the panel
         mainPanel.repaint(); // Repaint the panel
@@ -712,6 +685,7 @@ class QuizPage extends JPanel {
                 // Enable the next button
                 nextButton.setEnabled(true);
 
+                radioButton.revalidate();
 
                 // Update the user selection
                 userSelections.set(currentQuestionIndex, finalOptionIndex);
@@ -723,7 +697,7 @@ class QuizPage extends JPanel {
         }
 
         // Update the text and functionality of the 'next' button
-        if (this.isOnLastQuestion()) {
+        if (currentQuestionIndex == questions.size() - 2) {
             nextButton.setText("Finish");
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
             nextButton.addActionListener(new ActionListener() {
@@ -732,7 +706,8 @@ class QuizPage extends JPanel {
                     toEndOfQuiz();
                 }
             });
-        } else {
+        }
+        else {
             nextButton.setText("Next");
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
             nextButton.addActionListener(new ActionListener() {
@@ -768,13 +743,7 @@ class QuizPage extends JPanel {
     }
 
     void toEndOfQuiz() {
-        System.out.println("End quiz");
-        this.parentWindow.cardLayout.show(this.parentWindow.endPage, "End of quiz");
-
-    }
-
-    void displayQuestion() {
-
+        this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "EndPage");
     }
 }
 
