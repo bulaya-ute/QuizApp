@@ -458,3 +458,269 @@ Black lechwe
 Black rhino
 Elephant
 Wild dog
+
+What is the capital city of Zambia?
+1
+Harare
+Lusaka
+Pretoria
+Gaborone
+
+Which river forms part of Zambia’s southern border with Zimbabwe?
+2
+Congo River
+Kafue River
+Zambezi River
+Luangwa River
+
+What is the most populated city in Zambia?
+2
+Kitwe
+Ndola
+Lusaka
+Livingstone
+
+What is the provincial capital of Central Province?
+1
+Kabwe
+Ndola
+Mufulira
+Kitwe
+
+What is Zambia’s main export?
+2
+Gold
+Diamonds
+Copper
+Oil
+
+What is the official language of Zambia?
+1
+Portuguese
+English
+Swahili
+French
+
+Which lake is shared by Zambia and Tanzania?
+2
+Lake Mweru
+Lake Victoria
+Lake Tanganyika
+Lake Malawi
+
+What is the currency of Zambia?
+2
+Zambian dollar
+Zambian pound
+Zambian kwacha
+Zambian shilling
+
+What is Zambia’s climate type?
+3
+Tundra
+Mediterranean
+Desert
+Tropical
+
+Which river flows into the Victoria Falls?
+3
+Kafue River
+Luangwa River
+Congo River
+Zambezi River
+
+What is the highest point in Zambia?
+1
+Kalambo Falls
+Mafinga Central
+Nyika Plateau
+Chisanga Falls
+
+Which country borders Zambia to the west?
+2
+Mozambique
+Tanzania
+Angola
+Malawi
+
+What is the largest man made lake in Zambia?
+0
+Lake Tanganyika
+Lake Kariba
+Lake Mweru
+Lake Bangweulu
+
+What is the primary religion in Zambia?
+1
+Islam
+Christianity
+Buddhism
+Hinduism
+
+Which city is known as the tourist capital of Zambia?
+1
+Livingstone
+Lusaka
+Kitwe
+Ndola
+
+What is Zambia's main agricultural product?
+2
+Rice
+Barley
+Maize
+Wheat
+
+Which waterfall is located on the border between Zambia and Zimbabwe?
+1
+Ngonye Falls
+Victoria Falls
+Lumangwe Falls
+Kalambo Falls
+
+Which country borders Zambia to the east?
+1
+Namibia
+Malawi
+Botswana
+Tanzania
+
+Which Zambian River is one of the two largest tributaries of the Zambezi?
+1
+Kafue River
+Congo River
+Lusemfwa River
+Chambeshi River
+
+What is the name of the longest river in Zambia?
+1
+Zambezi River
+Congo River
+Kafue River
+Luangwa River
+
+Which Zambian province is Lusaka located in?
+3
+Copperbelt Province
+Eastern Province
+Western Province
+Lusaka Province
+
+What is the main industry in Zambia?
+2
+Tourism
+Agriculture
+Mining
+Manufacturing
+
+What body of water is created by the Kariba Dam?
+4
+Lake Malawi
+Lake Tanganyika
+Lake Mweru
+Lake Kariba
+
+Which Zambian Province is known for its copper mines?
+2
+Lusaka
+Northern
+Copperbelt
+Southern
+
+Which province in Zambia is known for its tea plantations?
+3
+Western Province
+Eastern Province
+Southern Province
+Luapula Province
+
+How many languages are in Zambia?
+3
+15
+20
+73
+72
+
+Which country borders Zambia to the southeast?
+0
+Mozambique
+Botswana
+Namibia
+Zimbabwe
+
+Which city is located near Victoria Falls in Zambia?
+1
+Lusaka
+Livingstone
+Ndola
+Kitwe
+
+What tribe performs the Kuomboka ceremony?
+0
+Lozi
+Bemba
+Tonga
+Ngoni
+
+Which is the smallest province in Zambia by area?
+3
+Copperbelt Province
+Central Province
+Western Province
+Lusaka Province
+
+Which game park is well known for bird viewing in Zambia?
+3
+Kafue National Park
+North Luangwa National Park
+Lower Zambezi National Park
+Lochinvar National Park
+
+Which river forms part of Zambia’s northern border with Tanzania?
+2
+Zambezi River
+Luangwa River
+Kalambo River
+Kafue River
+
+What is Zambia’s main energy source?
+3
+Solar power
+Nuclear power
+Coal
+Hydroelectric power
+
+Zambia is located in which continent?
+0
+Africa
+Europe
+Asia
+South America
+
+Which country borders Zambia to the southwest?
+3
+Malawi
+Angola
+Tanzania
+Namibia
+
+What is a traditional food staple in Zambia?
+3
+Pasta
+Bread
+Rice
+Nshima
+
+What is the main type of vegetation found in most of Zambia?
+2
+Rainforest
+Desert
+Savannah
+Tundra
+
+How many provinces does Zambia have?
+3
+12
+13
+7
+10

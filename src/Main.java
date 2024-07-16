@@ -1,7 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -14,8 +12,8 @@ public class Main {
 
 
 class Question {
-    // Assumption is that questions are separated by two blank lines
-    // Each question consists of lines, first one being the problem statement itself,
+    // Assumption is that questions are separated by two line breaks.
+    // Each question consists of text lines, first one being the problem statement itself,
     // the next being the index of the correct answer and the rest being the multiple choice options.
 
     String question;
@@ -507,19 +505,6 @@ class Question {
 
     }
 
-    public static ArrayList<Question> loadQuestions(String text) {
-        ArrayList<Question> data = new ArrayList<>();
-
-        for (String currentQuestionData : text.split("\n\n")) {
-            String[] lines = currentQuestionData.split("\n");
-            ArrayList<String> options = new ArrayList<>(Arrays.asList(lines).subList(2, lines.length));
-            Question currentQuestion = new Question(lines[0], options, Integer.parseInt(lines[1]));
-            data.add(currentQuestion);
-        }
-
-        return data;
-    }
-
     @Override
     public String toString() {
         StringBuilder data = new StringBuilder();
@@ -535,7 +520,6 @@ class Question {
 class QuizApp extends JFrame {
     WelcomePage welcomePage;
     QuizPage quizPage;
-    HelpPage helpPage;
     EndPage endPage;
     CardLayout cardLayout;
     JPanel mainPanel;
@@ -550,13 +534,11 @@ class QuizApp extends JFrame {
 
         welcomePage = new WelcomePage(this);
         quizPage = new QuizPage(this, questions);
-        helpPage = new HelpPage(this);
         endPage = new EndPage(this);
 
         // Add the screens with unique identifiers
         this.mainPanel.add(welcomePage, "WelcomePage");
         this.mainPanel.add(quizPage, "QuizPage");
-        this.mainPanel.add(helpPage, "HelpPage");
         this.mainPanel.add(endPage, "EndPage");
 
         this.setSize(800, 600);
@@ -566,7 +548,11 @@ class QuizApp extends JFrame {
     }
 
     public void reset() {
-
+        for (Question question : quizPage.questions) {
+            question.userSelection = -1;
+        }
+        quizPage.currentQuestionIndex = 0;
+        quizPage.updateView();
     }
 }
 
@@ -574,7 +560,6 @@ class QuizApp extends JFrame {
 class WelcomePage extends JPanel {
     String title;
     JButton startButton;
-    JButton helpButton;
     JButton exitButton;
     GridLayout grid;
     QuizApp parentWindow;
@@ -585,14 +570,12 @@ class WelcomePage extends JPanel {
         this.title = "Quiz";
         this.startButton = new JButton("Start");
         startButton.addActionListener(e -> this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage"));
-        this.helpButton = new JButton("Help");
         this.exitButton = new JButton("Exit");
         this.grid = new GridLayout(5, 1, 10, 10);
 
         this.setLayout(grid);  // Set the layout
         this.add(new JLabel()); // Spacer
         this.add(startButton);
-        this.add(helpButton);
         this.add(exitButton);
         this.add(new JLabel()); // Spacer
     }
@@ -668,14 +651,9 @@ class QuizPage extends JPanel {
             // Add the radiobutton to the panel
             questionPanel.add(radioButton);
 
-//            while (userSelections.size() <= currentQuestionIndex)
-//                userSelections.add(-1);
-
             // Restore user's last selection
             radioButton.setSelected(questions.get(currentQuestionIndex).userSelection == optionIndex &&
                     questions.get(currentQuestionIndex).userSelection != -1);
-//            radioButton.setSelected(optionIndex == userSelections.get(currentQuestionIndex) &&
-//                    userSelections.get(currentQuestionIndex) != -1);
 
             radioButton.addActionListener(e -> {
                 // Enable the next button
@@ -694,7 +672,7 @@ class QuizPage extends JPanel {
         }
 
         // Update the text and functionality of the 'next' button
-        if (currentQuestionIndex == questions.size() - 2) {
+        if (currentQuestionIndex == questions.size() - 1) {
             nextButton.setText("Finish");
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
             nextButton.addActionListener(e -> toEndOfQuiz());
@@ -712,7 +690,7 @@ class QuizPage extends JPanel {
     void toNextQuestion() {
 
         // Check if there's room to go to the next question
-        if (currentQuestionIndex < questions.size() - 2) {
+        if (currentQuestionIndex < questions.size() - 1) {
             // increment the current index
             this.currentQuestionIndex += 1;
         }
@@ -730,15 +708,7 @@ class QuizPage extends JPanel {
 
     void toEndOfQuiz() {
         this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "EndPage");
-    }
-}
-
-
-class HelpPage extends JPanel {
-    QuizApp parentWindow;
-
-    public HelpPage(QuizApp parentWindow) {
-        this.parentWindow = parentWindow;
+        parentWindow.endPage.updateText();
     }
 }
 
@@ -754,21 +724,24 @@ class EndPage extends JPanel {
         resultsLabel = new JLabel();
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(resultsLabel, BorderLayout.NORTH);
-        resultsLabel.setText("You got " + getWrong().size() + "/" + parentWindow.quizPage.questions.size() + " correct");
         restartButton = new JButton("Restart");
         restartButton.addActionListener(e -> {
             parentWindow.cardLayout.show(parentWindow.mainPanel, "WelcomePage");
             parentWindow.reset();
         });
+        mainPanel.add(restartButton);
+        add(mainPanel);
     }
 
-    ArrayList<Integer> getWrong() {
-        ArrayList<Integer> wrong = new ArrayList<>();
-        for (int i = 0; i < parentWindow.quizPage.questions.size(); i++) {
-            Question currentQuestion = parentWindow.quizPage.questions.get(i);
-            if (currentQuestion.userSelection != currentQuestion.correctAns)
-                wrong.add(i);
+    public void updateText() {
+        resultsLabel.setText("You got " + getRight() + "/" + parentWindow.quizPage.questions.size() + " correct");}
+
+    int getRight() {
+        int right = 0;
+        for (Question question : parentWindow.quizPage.questions) {
+            if (question.userSelection == question.correctAns)
+                right += 1;
         }
-        return wrong;
+        return right;
     }
 }
