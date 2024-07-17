@@ -791,25 +791,26 @@ class QuizApp extends JFrame {
     JPanel mainPanel;
     ArrayList<Question> questions;
 
-    int nQuestions = 2;
+    final int defaultMinQuestions = 10, defaultMaxQuestions = 30, defaultNQuestions = 15;
+    int nQuestions;
 
     public QuizApp() {
+        // Initialise fields
         questions = Question.loadQuestions();
-
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
-        add(mainPanel);
-
+        nQuestions = defaultNQuestions;
         mainMenuPage = new MainMenuPage(this);
         quizPage = new QuizPage(this);
         endPage = new EndPage(this);
         settingsPage = new SettingsPage(this);
 
         // Add the screens with unique identifiers
-        this.mainPanel.add(mainMenuPage, "MainMenuPage");
-        this.mainPanel.add(quizPage, "QuizPage");
-        this.mainPanel.add(endPage, "EndPage");
-        this.mainPanel.add(settingsPage, "SettingsPage");
+        mainPanel.add(mainMenuPage, "MainMenuPage");
+        mainPanel.add(quizPage, "QuizPage");
+        mainPanel.add(endPage, "EndPage");
+        mainPanel.add(settingsPage, "SettingsPage");
+        this.add(mainPanel);
 
         this.setSize(900, 600);
         this.setTitle("Zed Quiz");
@@ -817,13 +818,18 @@ class QuizApp extends JFrame {
         this.setVisible(true);
     }
 
-    public void reset() {
+    public void resetApp() {
         for (Question question : quizPage.questions) {
             question.userSelection = -1;
         }
         quizPage.currentQuestionIndex = 0;
         quizPage.questions = Utils.getRandomSelection(questions, nQuestions);
         quizPage.updateView();
+    }
+
+    public void resetSettings() {
+        settingsPage.slider.setValue(defaultNQuestions);
+        nQuestions = defaultNQuestions;
     }
 
     public void showPage(String pageName) {
@@ -1060,6 +1066,7 @@ class QuizPage extends JPanel {
         this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "EndPage");
         parentWindow.endPage.updateText();
     }
+
     void loadQuestions() {
         questions = Utils.getRandomSelection(parentWindow.questions, parentWindow.nQuestions);
     }
@@ -1075,7 +1082,6 @@ class SettingsPage extends JPanel {
     JButton backButton, resetButton;
     Font pageLabelFont, otherFont;
 
-    int min = 0, max = 20;
 
     public SettingsPage(QuizApp parentWindow) {
         super(new BorderLayout());
@@ -1090,7 +1096,7 @@ class SettingsPage extends JPanel {
         setting1Panel = new JPanel(new GridLayout(2, 1));
         sliderPanel = new JPanel(new GridBagLayout());
         sliderLabel = new JLabel("Number of questions: ");
-        slider = new JSlider(JSlider.HORIZONTAL, min, max, min + parentWindow.nQuestions);
+        slider = new JSlider(JSlider.HORIZONTAL, parentWindow.defaultMinQuestions, parentWindow.defaultMaxQuestions, parentWindow.nQuestions);
         sliderVal = new JLabel(slider.getValue() + "");
         settingsOptionsPanel = new JPanel(new GridLayout(2, 1));
         pageLabel = new JLabel("Settings");
@@ -1102,19 +1108,20 @@ class SettingsPage extends JPanel {
         pageLabel.setFont(otherFont);
         backButton.setFont(otherFont);
         resetButton.setFont(otherFont);
+        resetButton.addActionListener(e -> parentWindow.resetSettings());
         sliderLabel.setFont(otherFont);
         sliderVal.setFont(otherFont);
         slider.addChangeListener(e -> {
             parentWindow.nQuestions = slider.getValue();
             sliderVal.setText(slider.getValue() + "");
         });
-        backButton.addActionListener(e->parentWindow.showPage("MainMenuPage"));
+        backButton.addActionListener(e -> parentWindow.showPage("MainMenuPage"));
 
         // Populate containers
         setting1Panel.add(sliderLabel, BorderLayout.NORTH);
         setting1Panel.add(sliderPanel, BorderLayout.CENTER);
         sliderConstraints.gridy = 0;
-        sliderConstraints.fill=GridBagConstraints.VERTICAL;
+        sliderConstraints.fill = GridBagConstraints.VERTICAL;
         sliderConstraints.gridx = 0;
         sliderConstraints.weightx = 8;
         sliderPanel.add(slider, sliderConstraints);
@@ -1163,7 +1170,7 @@ class EndPage extends JPanel {
         mainMenuButton.setFont(buttonsFont);
         mainMenuButton.addActionListener(e -> {
             parentWindow.cardLayout.show(parentWindow.mainPanel, "MainMenuPage");
-            parentWindow.reset();
+            parentWindow.resetApp();
             parentWindow.quizPage.isReviewing = false;
         });
         reviewButton.addActionListener(e -> {
