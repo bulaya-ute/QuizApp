@@ -792,7 +792,7 @@ class QuizApp extends JFrame {
     JPanel mainPanel;
     ArrayList<Question> questions;
 
-    int nQuestions = 10;
+    int nQuestions = 2;
 
     public QuizApp() {
         questions = Question.loadQuestions();
@@ -810,7 +810,7 @@ class QuizApp extends JFrame {
         this.mainPanel.add(quizPage, "QuizPage");
         this.mainPanel.add(endPage, "EndPage");
 
-        this.setSize(800, 600);
+        this.setSize(900, 600);
         this.setTitle("Zed Quiz");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
@@ -830,7 +830,7 @@ class QuizApp extends JFrame {
 class WelcomePage extends JPanel {
     String title;
     JButton startButton, settingsButton, exitButton;
-    JPanel mainPanel, buttonsPanel;
+    JPanel mainPanel;
     QuizApp parentWindow;
     Font font = new Font("SansSerif", Font.PLAIN, 18);
 
@@ -838,7 +838,7 @@ class WelcomePage extends JPanel {
         super(new BorderLayout());
 
         // Initialise fields
-        startButton = new JButton("Start");
+        startButton = new JButton("Start quiz");
         exitButton = new JButton("Exit");
         settingsButton = new JButton("Settings");
         mainPanel = new JPanel(new GridLayout(5, 1, 10, 40));
@@ -846,7 +846,11 @@ class WelcomePage extends JPanel {
         this.title = "Quiz";
 
         // Configure components
-        startButton.addActionListener(e -> this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage"));
+        startButton.addActionListener(e -> {
+            parentWindow.quizPage.isReviewing = false;
+            this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage");
+            parentWindow.quizPage.updateView();
+        });
         startButton.setFont(font);
         settingsButton.setFont(font);
         exitButton.addActionListener(e -> System.exit(0));
@@ -866,6 +870,7 @@ class WelcomePage extends JPanel {
 
 
 class QuizPage extends JPanel {
+    public boolean isReviewing;
     JButton prevButton, nextButton;
     JPanel mainPanel;
     JPanel questionPanel, optionsPanel, bottomBar, topBar;
@@ -895,6 +900,7 @@ class QuizPage extends JPanel {
         optionsPanel = new JPanel(new GridLayout());
         topQPSpacer = new JLabel();
         bottomQPSpacer = new JLabel();
+        isReviewing = false;
         this.questions = questions;
         this.parentWindow = parentWindow;
 
@@ -908,8 +914,6 @@ class QuizPage extends JPanel {
         progressText.setFont(progressFont);
         prevButton.setFont(buttonsFont);
         questionText.setFont(questionFont);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
 
         // Populate containers
         bottomBar.add(prevButton);
@@ -931,14 +935,19 @@ class QuizPage extends JPanel {
          * Display the current question on the screen.
          * */
 
-        // Show the progress
-        progressText.setText("Question " + (currentQuestionIndex + 1) + " of " + questions.size());
 
         Question currentQuestion = questions.get(currentQuestionIndex);
 
-        questionText.setText(Utils.convertToHtml(Utils.wrapString(currentQuestion.question, 100)));
-        System.out.println(currentQuestion.question + "\n\n");
-//        System.out.println(Utils.wrapString(currentQuestion.question, 10));
+        // Show the progress
+        if (isReviewing)
+            progressText.setText("Correct answer: " + Utils.letters[currentQuestion.correctAns]);
+        else
+            progressText.setText("Question " + (currentQuestionIndex + 1) + " of " + questions.size());
+
+//        System.out.println(currentQuestion + " --- " + currentQuestion.correctAns);
+        System.out.println(isReviewing);
+
+        questionText.setText(Utils.convertToHtml(Utils.wrapString(currentQuestion.question, 75)));
 
         // Empty the existing panel
         mainPanel.remove(questionPanel); // Remove the center component
@@ -946,7 +955,10 @@ class QuizPage extends JPanel {
         mainPanel.repaint(); // Repaint the panel
 
         // Create a new, empty panel
-        questionPanel = new JPanel(new GridLayout(currentQuestion.options.size() + 3, 1));
+        questionPanel = new JPanel(new GridBagLayout());
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
         mainPanel.add(questionPanel, BorderLayout.CENTER);
 
         // Add the top spacer and question text to the question panel
@@ -956,8 +968,8 @@ class QuizPage extends JPanel {
         questionPanel.add(topQPSpacer, gbc);
 
         gbc.gridy = 1;
-        gbc.weighty = 5.0;
-        gbc.gridheight = 5;
+        gbc.weighty = 2.0;
+        gbc.gridheight = 1;
         questionPanel.add(questionText, gbc);
 
         // Create button group for radio buttons
@@ -967,7 +979,7 @@ class QuizPage extends JPanel {
         for (int optionIndex = 0; optionIndex < currentQuestion.options.size(); optionIndex++) {
             int finalOptionIndex = optionIndex;
 
-            JRadioButton radioButton = new JRadioButton(currentQuestion.options.get(optionIndex));
+            JRadioButton radioButton = new JRadioButton(Utils.letters[optionIndex] + ". " + currentQuestion.options.get(optionIndex));
             radioButton.setFont(questionFont);
 
             // Add the radiobutton to the panel
@@ -993,10 +1005,16 @@ class QuizPage extends JPanel {
                 // Add the button to the button group
                 buttonGroup.add(radioButton);
             });
+
+            radioButton.setEnabled(!isReviewing);
+
         }
 
         // Add the bottom spacer
-        questionPanel.add(bottomQPSpacer);
+        gbc.gridy = 3 + currentQuestion.options.size();
+        gbc.weighty = 1.0;
+        gbc.gridheight = 1;
+        questionPanel.add(bottomQPSpacer, gbc);
 
         // Update the text and functionality of the 'next' button
         if (currentQuestionIndex == questions.size() - 1) {
@@ -1056,22 +1074,46 @@ class SettingsPage extends JPanel {
 
 class EndPage extends JPanel {
     QuizApp parentWindow;
-    JPanel mainPanel;
+    JPanel mainPanel, buttonsPanel;
     JLabel resultsLabel;
-    JButton restartButton;
+    JButton mainMenuButton, reviewButton;
+    Font buttonsFont, resultsFont;
 
     public EndPage(QuizApp parentWindow) {
+        super(new BorderLayout());
+
         this.parentWindow = parentWindow;
+        buttonsPanel = new JPanel(new GridLayout(1, 2));
+        buttonsFont = new Font("SansSerif", Font.PLAIN, 18);
+        resultsFont = new Font("SansSerif", Font.PLAIN, 22);
         resultsLabel = new JLabel();
         mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(resultsLabel, BorderLayout.NORTH);
-        restartButton = new JButton("Restart");
-        restartButton.addActionListener(e -> {
+        mainMenuButton = new JButton("Main menu");
+        reviewButton = new JButton("Review");
+
+        // Configure components
+        resultsLabel.setFont(resultsFont);
+        resultsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        reviewButton.setFont(buttonsFont);
+        mainMenuButton.setFont(buttonsFont);
+        mainMenuButton.addActionListener(e -> {
             parentWindow.cardLayout.show(parentWindow.mainPanel, "WelcomePage");
             parentWindow.reset();
+            parentWindow.quizPage.isReviewing = false;
         });
-        mainPanel.add(restartButton);
-        add(mainPanel);
+        reviewButton.addActionListener(e -> {
+            this.parentWindow.quizPage.isReviewing = true;
+            this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage");
+            parentWindow.quizPage.updateView();
+        });
+
+        // Populate containers
+        mainPanel.add(resultsLabel, BorderLayout.CENTER);
+        buttonsPanel.add(reviewButton);
+        buttonsPanel.add(mainMenuButton);
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        this.add(mainPanel, BorderLayout.CENTER);
+
     }
 
     public void updateText() {
@@ -1090,6 +1132,8 @@ class EndPage extends JPanel {
 
 
 class Utils {
+    public static String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+            "M", "N", "O", "P", "Q", "R"};
 
     public static <T> ArrayList<T> getRandomSelection(List<T> list, int n) {
         if (n > list.size()) {
