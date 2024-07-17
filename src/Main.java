@@ -886,8 +886,7 @@ class MainMenuPage extends JPanel {
 class QuizPage extends JPanel {
     public boolean isReviewing;
     JButton prevButton, nextButton, quitButton;
-    JPanel mainPanel;
-    JPanel questionPanel, optionsPanel, bottomBar, topBar;
+    JPanel mainPanel, qpHolder, questionPanel, optionsPanel, bottomBar, topBar;
     JLabel questionText, progressText, topQPSpacer, bottomQPSpacer;
     ArrayList<Question> questions;
     GridBagConstraints gbc;
@@ -904,6 +903,7 @@ class QuizPage extends JPanel {
         questionFont = new Font("SansSerif", Font.PLAIN, 18);
         buttonsFont = new Font("SansSerif", Font.PLAIN, 18);
         nextButton = new JButton();
+//        qpHolder = new JPanel(new BorderLayout());
         prevButton = new JButton("Previous");
         quitButton = new JButton("Quit to main menu");
         questionText = new JLabel("- Question not yet loaded -");
@@ -977,7 +977,7 @@ class QuizPage extends JPanel {
         // Create a new, empty panel
         questionPanel = new JPanel(new GridBagLayout());
         gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.gridx = 0;
         mainPanel.add(questionPanel, BorderLayout.CENTER);
 
@@ -1053,6 +1053,7 @@ class QuizPage extends JPanel {
                 BorderFactory.createBevelBorder(BevelBorder.RAISED),
                 BorderFactory.createEmptyBorder(3, 10, 3, 10)
         ));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(50, 30, 50, 30));
     }
 
     void toNextQuestion() {
