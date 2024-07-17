@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -818,7 +819,7 @@ class QuizApp extends JFrame {
         this.setVisible(true);
     }
 
-    public void resetApp() {
+    public void resetQuiz() {
         for (Question question : quizPage.questions) {
             question.userSelection = -1;
         }
@@ -884,7 +885,7 @@ class MainMenuPage extends JPanel {
 
 class QuizPage extends JPanel {
     public boolean isReviewing;
-    JButton prevButton, nextButton;
+    JButton prevButton, nextButton, quitButton;
     JPanel mainPanel;
     JPanel questionPanel, optionsPanel, bottomBar, topBar;
     JLabel questionText, progressText, topQPSpacer, bottomQPSpacer;
@@ -895,7 +896,7 @@ class QuizPage extends JPanel {
     Font progressFont, questionFont, buttonsFont;
 
     public QuizPage(QuizApp parentWindow) {
-        super(new BorderLayout(20, 20));
+        super(new BorderLayout());
 
         // Initialize fields
         this.parentWindow = parentWindow;
@@ -904,11 +905,12 @@ class QuizPage extends JPanel {
         buttonsFont = new Font("SansSerif", Font.PLAIN, 18);
         nextButton = new JButton();
         prevButton = new JButton("Previous");
+        quitButton = new JButton("Quit to main menu");
         questionText = new JLabel("- Question not yet loaded -");
         progressText = new JLabel(" - Loading progress -");
         questionPanel = new JPanel(new GridBagLayout());
         gbc = new GridBagConstraints();
-        bottomBar = new JPanel(new GridLayout(1, 2));
+        bottomBar = new JPanel(new GridLayout(1, 3));
         topBar = new JPanel(new GridLayout(2, 1));
         mainPanel = new JPanel(new BorderLayout());
         optionsPanel = new JPanel(new GridLayout());
@@ -922,6 +924,11 @@ class QuizPage extends JPanel {
         nextButton.addActionListener(e -> {
         });
         prevButton.addActionListener(e -> toPreviousQuestion());
+        quitButton.addActionListener(e -> {
+            parentWindow.showPage("MainMenuPage");
+            parentWindow.resetQuiz();
+        });
+        quitButton.setFont(buttonsFont);
         nextButton.setEnabled(false);  // Must be disabled by default. Re-enabled by selecting an option
         nextButton.setFont(buttonsFont);
         progressText.setHorizontalAlignment(SwingConstants.CENTER);
@@ -932,13 +939,14 @@ class QuizPage extends JPanel {
 
         // Populate containers
         bottomBar.add(prevButton);
+        bottomBar.add(quitButton);
         bottomBar.add(nextButton);
 
-        mainPanel.add(progressText, BorderLayout.NORTH);
-        mainPanel.add(questionPanel, BorderLayout.CENTER);
-        mainPanel.add(bottomBar, BorderLayout.SOUTH);
-        mainPanel.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.WEST); // Spacer
-        mainPanel.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.EAST); // Spacer
+        this.add(progressText, BorderLayout.NORTH);
+        this.add(questionPanel, BorderLayout.CENTER);
+        this.add(bottomBar, BorderLayout.SOUTH);
+        this.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.WEST); // Spacer
+        this.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.EAST); // Spacer
 
         this.add(mainPanel, BorderLayout.CENTER);
         this.updateView();
@@ -980,7 +988,7 @@ class QuizPage extends JPanel {
         questionPanel.add(topQPSpacer, gbc);
 
         gbc.gridy = 1;
-        gbc.weighty = 2.0;
+        gbc.weighty = 3;
         gbc.gridheight = 1;
         questionPanel.add(questionText, gbc);
 
@@ -1038,9 +1046,13 @@ class QuizPage extends JPanel {
             nextButton.removeActionListener(nextButton.getActionListeners()[0]);
             nextButton.addActionListener(e -> toNextQuestion());
         }
-//        nextButton.setEnabled(userSelections.get(currentQuestionIndex) != -1);
         nextButton.setEnabled(questions.get(currentQuestionIndex).userSelection != -1);
         prevButton.setEnabled(currentQuestionIndex > 0);
+
+        questionPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.RAISED),
+                BorderFactory.createEmptyBorder(3, 10, 3, 10)
+        ));
     }
 
     void toNextQuestion() {
@@ -1091,52 +1103,63 @@ class SettingsPage extends JPanel {
         this.mainPanel = new JPanel(new BorderLayout());
         sliderConstraints = new GridBagConstraints();
         pageLabelFont = new Font("SansSerif", Font.PLAIN, 22);
+        otherFont = new Font("SansSerif", Font.PLAIN, 20);
         backButton = new JButton("Back");
         resetButton = new JButton("Reset to default");
         setting1Panel = new JPanel(new GridLayout(2, 1));
         sliderPanel = new JPanel(new GridBagLayout());
         sliderLabel = new JLabel("Number of questions: ");
-        slider = new JSlider(JSlider.HORIZONTAL, parentWindow.defaultMinQuestions, parentWindow.defaultMaxQuestions, parentWindow.nQuestions);
+        slider = new JSlider(JSlider.HORIZONTAL, parentWindow.defaultMinQuestions,
+                parentWindow.defaultMaxQuestions, parentWindow.nQuestions);
         sliderVal = new JLabel(slider.getValue() + "");
-        settingsOptionsPanel = new JPanel(new GridLayout(2, 1));
+        settingsOptionsPanel = new JPanel(new GridLayout(5, 1));
         pageLabel = new JLabel("Settings");
         buttonsPanel = new JPanel(new GridLayout(1, 2));
+        sliderConstraints.gridy = 0;
+        sliderConstraints.fill = GridBagConstraints.BOTH;
 
         // Configure components
+        setting1Panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createBevelBorder(BevelBorder.RAISED),
+                BorderFactory.createEmptyBorder(3, 10, 3, 10)
+        ));
         pageLabel.setVerticalAlignment(SwingConstants.CENTER);
         pageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        pageLabel.setFont(otherFont);
+        pageLabel.setFont(pageLabelFont);
         backButton.setFont(otherFont);
         resetButton.setFont(otherFont);
         resetButton.addActionListener(e -> parentWindow.resetSettings());
         sliderLabel.setFont(otherFont);
         sliderVal.setFont(otherFont);
+        sliderVal.setHorizontalAlignment(SwingConstants.CENTER);
         slider.addChangeListener(e -> {
             parentWindow.nQuestions = slider.getValue();
             sliderVal.setText(slider.getValue() + "");
         });
         backButton.addActionListener(e -> parentWindow.showPage("MainMenuPage"));
 
+
         // Populate containers
         setting1Panel.add(sliderLabel, BorderLayout.NORTH);
         setting1Panel.add(sliderPanel, BorderLayout.CENTER);
-        sliderConstraints.gridy = 0;
-        sliderConstraints.fill = GridBagConstraints.VERTICAL;
         sliderConstraints.gridx = 0;
-        sliderConstraints.weightx = 8;
+        sliderConstraints.weightx = 6;
         sliderPanel.add(slider, sliderConstraints);
         sliderConstraints.gridx = 1;
-        sliderConstraints.weightx = 2;
+        sliderConstraints.weightx = 1;
         sliderPanel.add(sliderVal, sliderConstraints);
 
         buttonsPanel.add(backButton);
         buttonsPanel.add(resetButton);
 
+        settingsOptionsPanel.add(Box.createRigidArea(new Dimension()));
+        settingsOptionsPanel.add(Box.createRigidArea(new Dimension()));
         settingsOptionsPanel.add(setting1Panel);
 
         this.add(pageLabel, BorderLayout.NORTH);
         this.add(Box.createRigidArea(new Dimension(100, 100)), BorderLayout.EAST);  // Horizontal spacer
         this.add(Box.createRigidArea(new Dimension(100, 100)), BorderLayout.WEST);  // Horizontal spacer
+//        this.add(slider, BorderLayout.CENTER);
         this.add(settingsOptionsPanel, BorderLayout.CENTER);
         this.add(buttonsPanel, BorderLayout.SOUTH);
     }
@@ -1170,7 +1193,7 @@ class EndPage extends JPanel {
         mainMenuButton.setFont(buttonsFont);
         mainMenuButton.addActionListener(e -> {
             parentWindow.cardLayout.show(parentWindow.mainPanel, "MainMenuPage");
-            parentWindow.resetApp();
+            parentWindow.resetQuiz();
             parentWindow.quizPage.isReviewing = false;
         });
         reviewButton.addActionListener(e -> {
