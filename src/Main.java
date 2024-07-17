@@ -21,8 +21,6 @@ class Question {
     String question;
     ArrayList<String> options;
     int correctAns, userSelection = -1;
-    String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
-            "M", "N", "O", "P", "Q", "R"};
 
     static String defaultQuestions = """
             Who was the first president of Zambia?
@@ -777,7 +775,7 @@ class Question {
         StringBuilder data = new StringBuilder();
         data.append(this.question).append("\n");
         for (int i = 0; i < this.options.size(); i++) {
-            data.append(this.letters[i]).append(") ").append(this.options.get(i)).append("\n");
+            data.append(Utils.letters[i]).append(") ").append(this.options.get(i)).append("\n");
         }
         return data.toString();
     }
@@ -785,9 +783,10 @@ class Question {
 
 
 class QuizApp extends JFrame {
-    WelcomePage welcomePage;
+    MainMenuPage mainMenuPage;
     QuizPage quizPage;
     EndPage endPage;
+    SettingsPage settingsPage;
     CardLayout cardLayout;
     JPanel mainPanel;
     ArrayList<Question> questions;
@@ -801,14 +800,16 @@ class QuizApp extends JFrame {
         mainPanel = new JPanel(cardLayout);
         add(mainPanel);
 
-        welcomePage = new WelcomePage(this);
-        quizPage = new QuizPage(this, Utils.getRandomSelection(questions, nQuestions));
+        mainMenuPage = new MainMenuPage(this);
+        quizPage = new QuizPage(this);
         endPage = new EndPage(this);
+        settingsPage = new SettingsPage(this);
 
         // Add the screens with unique identifiers
-        this.mainPanel.add(welcomePage, "WelcomePage");
+        this.mainPanel.add(mainMenuPage, "MainMenuPage");
         this.mainPanel.add(quizPage, "QuizPage");
         this.mainPanel.add(endPage, "EndPage");
+        this.mainPanel.add(settingsPage, "SettingsPage");
 
         this.setSize(900, 600);
         this.setTitle("Zed Quiz");
@@ -824,17 +825,21 @@ class QuizApp extends JFrame {
         quizPage.questions = Utils.getRandomSelection(questions, nQuestions);
         quizPage.updateView();
     }
+
+    public void showPage(String pageName) {
+        cardLayout.show(mainPanel, pageName);
+    }
 }
 
 
-class WelcomePage extends JPanel {
+class MainMenuPage extends JPanel {
     String title;
     JButton startButton, settingsButton, exitButton;
     JPanel mainPanel;
     QuizApp parentWindow;
     Font font = new Font("SansSerif", Font.PLAIN, 18);
 
-    public WelcomePage(QuizApp parentWindow) {
+    public MainMenuPage(QuizApp parentWindow) {
         super(new BorderLayout());
 
         // Initialise fields
@@ -849,10 +854,12 @@ class WelcomePage extends JPanel {
         startButton.addActionListener(e -> {
             parentWindow.quizPage.isReviewing = false;
             this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage");
+            parentWindow.quizPage.loadQuestions();
             parentWindow.quizPage.updateView();
         });
         startButton.setFont(font);
         settingsButton.setFont(font);
+        settingsButton.addActionListener(e -> parentWindow.showPage("SettingsPage"));
         exitButton.addActionListener(e -> System.exit(0));
         exitButton.setFont(font);
 
@@ -881,10 +888,11 @@ class QuizPage extends JPanel {
     QuizApp parentWindow;
     Font progressFont, questionFont, buttonsFont;
 
-    public QuizPage(QuizApp parentWindow, ArrayList<Question> questions) {
+    public QuizPage(QuizApp parentWindow) {
         super(new BorderLayout(20, 20));
 
         // Initialize fields
+        this.parentWindow = parentWindow;
         progressFont = new Font("SansSerif", Font.PLAIN, 22);
         questionFont = new Font("SansSerif", Font.PLAIN, 18);
         buttonsFont = new Font("SansSerif", Font.PLAIN, 18);
@@ -901,8 +909,8 @@ class QuizPage extends JPanel {
         topQPSpacer = new JLabel();
         bottomQPSpacer = new JLabel();
         isReviewing = false;
-        this.questions = questions;
-        this.parentWindow = parentWindow;
+        questions = new ArrayList<>();
+        loadQuestions();
 
         // Configure components
         nextButton.addActionListener(e -> {
@@ -911,6 +919,7 @@ class QuizPage extends JPanel {
         nextButton.setEnabled(false);  // Must be disabled by default. Re-enabled by selecting an option
         nextButton.setFont(buttonsFont);
         progressText.setHorizontalAlignment(SwingConstants.CENTER);
+        progressText.setVerticalAlignment(SwingConstants.CENTER);
         progressText.setFont(progressFont);
         prevButton.setFont(buttonsFont);
         questionText.setFont(questionFont);
@@ -940,12 +949,9 @@ class QuizPage extends JPanel {
 
         // Show the progress
         if (isReviewing)
-            progressText.setText("Correct answer: " + Utils.letters[currentQuestion.correctAns]);
+            progressText.setText(Utils.convertToHtml("Question " + (currentQuestionIndex + 1) + " of " + questions.size() + "\nCorrect answer: " + Utils.letters[currentQuestion.correctAns]));
         else
             progressText.setText("Question " + (currentQuestionIndex + 1) + " of " + questions.size());
-
-//        System.out.println(currentQuestion + " --- " + currentQuestion.correctAns);
-        System.out.println(isReviewing);
 
         questionText.setText(Utils.convertToHtml(Utils.wrapString(currentQuestion.question, 75)));
 
@@ -1054,19 +1060,78 @@ class QuizPage extends JPanel {
         this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "EndPage");
         parentWindow.endPage.updateText();
     }
+    void loadQuestions() {
+        questions = Utils.getRandomSelection(parentWindow.questions, parentWindow.nQuestions);
+    }
 }
 
 
 class SettingsPage extends JPanel {
     QuizApp parentWindow;
-    JPanel mainPanel;
+    JPanel mainPanel, settingsOptionsPanel, sliderPanel, setting1Panel, buttonsPanel;
     JSlider slider;
+    GridBagConstraints sliderConstraints;
+    JLabel pageLabel, sliderLabel, sliderVal;
+    JButton backButton, resetButton;
+    Font pageLabelFont, otherFont;
+
+    int min = 0, max = 20;
 
     public SettingsPage(QuizApp parentWindow) {
+        super(new BorderLayout());
+
+        // Initialize fields
         this.parentWindow = parentWindow;
         this.mainPanel = new JPanel(new BorderLayout());
-        this.slider = new JSlider();
-        System.out.println(2 / 0);
+        sliderConstraints = new GridBagConstraints();
+        pageLabelFont = new Font("SansSerif", Font.PLAIN, 22);
+        backButton = new JButton("Back");
+        resetButton = new JButton("Reset to default");
+        setting1Panel = new JPanel(new GridLayout(2, 1));
+        sliderPanel = new JPanel(new GridBagLayout());
+        sliderLabel = new JLabel("Number of questions: ");
+        slider = new JSlider(JSlider.HORIZONTAL, min, max, min + parentWindow.nQuestions);
+        sliderVal = new JLabel(slider.getValue() + "");
+        settingsOptionsPanel = new JPanel(new GridLayout(2, 1));
+        pageLabel = new JLabel("Settings");
+        buttonsPanel = new JPanel(new GridLayout(1, 2));
+
+        // Configure components
+        pageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        pageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        pageLabel.setFont(otherFont);
+        backButton.setFont(otherFont);
+        resetButton.setFont(otherFont);
+        sliderLabel.setFont(otherFont);
+        sliderVal.setFont(otherFont);
+        slider.addChangeListener(e -> {
+            parentWindow.nQuestions = slider.getValue();
+            sliderVal.setText(slider.getValue() + "");
+        });
+        backButton.addActionListener(e->parentWindow.showPage("MainMenuPage"));
+
+        // Populate containers
+        setting1Panel.add(sliderLabel, BorderLayout.NORTH);
+        setting1Panel.add(sliderPanel, BorderLayout.CENTER);
+        sliderConstraints.gridy = 0;
+        sliderConstraints.fill=GridBagConstraints.VERTICAL;
+        sliderConstraints.gridx = 0;
+        sliderConstraints.weightx = 8;
+        sliderPanel.add(slider, sliderConstraints);
+        sliderConstraints.gridx = 1;
+        sliderConstraints.weightx = 2;
+        sliderPanel.add(sliderVal, sliderConstraints);
+
+        buttonsPanel.add(backButton);
+        buttonsPanel.add(resetButton);
+
+        settingsOptionsPanel.add(setting1Panel);
+
+        this.add(pageLabel, BorderLayout.NORTH);
+        this.add(Box.createRigidArea(new Dimension(100, 100)), BorderLayout.EAST);  // Horizontal spacer
+        this.add(Box.createRigidArea(new Dimension(100, 100)), BorderLayout.WEST);  // Horizontal spacer
+        this.add(settingsOptionsPanel, BorderLayout.CENTER);
+        this.add(buttonsPanel, BorderLayout.SOUTH);
     }
 
 }
@@ -1097,7 +1162,7 @@ class EndPage extends JPanel {
         reviewButton.setFont(buttonsFont);
         mainMenuButton.setFont(buttonsFont);
         mainMenuButton.addActionListener(e -> {
-            parentWindow.cardLayout.show(parentWindow.mainPanel, "WelcomePage");
+            parentWindow.cardLayout.show(parentWindow.mainPanel, "MainMenuPage");
             parentWindow.reset();
             parentWindow.quizPage.isReviewing = false;
         });
@@ -1133,7 +1198,7 @@ class EndPage extends JPanel {
 
 class Utils {
     public static String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
-            "M", "N", "O", "P", "Q", "R"};
+            "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     public static <T> ArrayList<T> getRandomSelection(List<T> list, int n) {
         if (n > list.size()) {
@@ -1147,7 +1212,7 @@ class Utils {
     }
 
     public static String wrapString(String text, int charLen) {
-        String newString = "";
+        StringBuilder newString = new StringBuilder();
         int end = 0;
         for (int start = 0; end != text.length() - 1; start = end) {
             end = start + charLen;
@@ -1155,12 +1220,11 @@ class Utils {
                 end = text.length() - 1;
             while (start + 1 < end && text.charAt(end - 1) != ' ' && end != text.length() - 1)
                 end--;
-//            System.out.println(start + "  -  " + end + "  |  " + text.length() + "  :  " );
-            newString += text.substring(start, end);
+            newString.append(text, start, end);
             if (end != text.length() - 1)
-                newString += "\n";
+                newString.append("\n");
         }
-        return newString;
+        return newString.toString();
     }
 
     public static String convertToHtml(String multilineText) {
