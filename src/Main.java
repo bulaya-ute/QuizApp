@@ -832,9 +832,7 @@ class WelcomePage extends JPanel {
     JButton startButton, settingsButton, exitButton;
     JPanel mainPanel, buttonsPanel;
     QuizApp parentWindow;
-    Font font = new Font("SansSerif", Font.PLAIN, 18 );
-    Component vSpacer = Box.createRigidArea(new Dimension(60, 60));
-    Component hSpacer = Box.createRigidArea(new Dimension(60, 60));
+    Font font = new Font("SansSerif", Font.PLAIN, 18);
 
     public WelcomePage(QuizApp parentWindow) {
         super(new BorderLayout());
@@ -873,22 +871,24 @@ class QuizPage extends JPanel {
     JPanel questionPanel, optionsPanel, bottomBar, topBar;
     JLabel questionText, progressText, topQPSpacer, bottomQPSpacer;
     ArrayList<Question> questions;
+    GridBagConstraints gbc;
     int currentQuestionIndex = 0;
     QuizApp parentWindow;
     Font progressFont, questionFont, buttonsFont;
 
     public QuizPage(QuizApp parentWindow, ArrayList<Question> questions) {
-        super(new BorderLayout());
+        super(new BorderLayout(20, 20));
 
         // Initialize fields
-        progressFont = new Font("SansSerif", Font.PLAIN, 28);
-        questionFont = new Font("SansSerif", Font.PLAIN, 20);
-        progressFont = new Font("SansSerif", Font.PLAIN, 18);
+        progressFont = new Font("SansSerif", Font.PLAIN, 22);
+        questionFont = new Font("SansSerif", Font.PLAIN, 18);
+        buttonsFont = new Font("SansSerif", Font.PLAIN, 18);
         nextButton = new JButton();
         prevButton = new JButton("Previous");
         questionText = new JLabel("- Question not yet loaded -");
         progressText = new JLabel(" - Loading progress -");
-        questionPanel = new JPanel(new GridLayout(5, 1));
+        questionPanel = new JPanel(new GridBagLayout());
+        gbc = new GridBagConstraints();
         bottomBar = new JPanel(new GridLayout(1, 2));
         topBar = new JPanel(new GridLayout(2, 1));
         mainPanel = new JPanel(new BorderLayout());
@@ -899,19 +899,21 @@ class QuizPage extends JPanel {
         this.parentWindow = parentWindow;
 
         // Configure components
-        nextButton.addActionListener(e -> {});
+        nextButton.addActionListener(e -> {
+        });
         prevButton.addActionListener(e -> toPreviousQuestion());
         nextButton.setEnabled(false);  // Must be disabled by default. Re-enabled by selecting an option
         nextButton.setFont(buttonsFont);
         progressText.setHorizontalAlignment(SwingConstants.CENTER);
         progressText.setFont(progressFont);
         prevButton.setFont(buttonsFont);
+        questionText.setFont(questionFont);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
 
         // Populate containers
         bottomBar.add(prevButton);
         bottomBar.add(nextButton);
-        questionPanel.add(questionText, BorderLayout.NORTH);
-        questionPanel.add(optionsPanel, BorderLayout.CENTER);
 
         mainPanel.add(progressText, BorderLayout.NORTH);
         mainPanel.add(questionPanel, BorderLayout.CENTER);
@@ -929,9 +931,14 @@ class QuizPage extends JPanel {
          * Display the current question on the screen.
          * */
 
+        // Show the progress
+        progressText.setText("Question " + (currentQuestionIndex + 1) + " of " + questions.size());
+
         Question currentQuestion = questions.get(currentQuestionIndex);
 
-        questionText.setText(currentQuestionIndex + 1 + ". " + currentQuestion.question);
+        questionText.setText(Utils.convertToHtml(Utils.wrapString(currentQuestion.question, 100)));
+        System.out.println(currentQuestion.question + "\n\n");
+//        System.out.println(Utils.wrapString(currentQuestion.question, 10));
 
         // Empty the existing panel
         mainPanel.remove(questionPanel); // Remove the center component
@@ -943,8 +950,15 @@ class QuizPage extends JPanel {
         mainPanel.add(questionPanel, BorderLayout.CENTER);
 
         // Add the top spacer and question text to the question panel
-        questionPanel.add(topQPSpacer);
-        questionPanel.add(questionText);
+        gbc.gridy = 0;
+        gbc.weighty = 1.0;
+        gbc.gridheight = 1;
+        questionPanel.add(topQPSpacer, gbc);
+
+        gbc.gridy = 1;
+        gbc.weighty = 5.0;
+        gbc.gridheight = 5;
+        questionPanel.add(questionText, gbc);
 
         // Create button group for radio buttons
         ButtonGroup buttonGroup = new ButtonGroup();
@@ -954,9 +968,13 @@ class QuizPage extends JPanel {
             int finalOptionIndex = optionIndex;
 
             JRadioButton radioButton = new JRadioButton(currentQuestion.options.get(optionIndex));
+            radioButton.setFont(questionFont);
 
             // Add the radiobutton to the panel
-            questionPanel.add(radioButton);
+            gbc.gridy = optionIndex + 2;
+            gbc.weighty = 1.0;
+            gbc.gridheight = 1;
+            questionPanel.add(radioButton, gbc);
 
             // Restore user's last selection
             radioButton.setSelected(questions.get(currentQuestionIndex).userSelection == optionIndex &&
@@ -975,7 +993,6 @@ class QuizPage extends JPanel {
                 // Add the button to the button group
                 buttonGroup.add(radioButton);
             });
-
         }
 
         // Add the bottom spacer
@@ -1086,14 +1103,33 @@ class Utils {
     }
 
     public static String wrapString(String text, int charLen) {
-        StringBuilder newString = new StringBuilder();
-        int end;
-        for (int i = 0; i < text.length(); i += charLen) {
-            end = i + charLen;
+        String newString = "";
+        int end = 0;
+        for (int start = 0; end != text.length() - 1; start = end) {
+            end = start + charLen;
             if (end > text.length() - 1)
                 end = text.length() - 1;
-            newString.append(text, i, end);
+            while (start + 1 < end && text.charAt(end - 1) != ' ' && end != text.length() - 1)
+                end--;
+//            System.out.println(start + "  -  " + end + "  |  " + text.length() + "  :  " );
+            newString += text.substring(start, end);
+            if (end != text.length() - 1)
+                newString += "\n";
         }
-        return newString.toString();
+        return newString;
+    }
+
+    public static String convertToHtml(String multilineText) {
+        // Split the input text by newline characters
+        String[] lines = multilineText.split("\n");
+
+        // Wrap each line with <br> tags for HTML
+        StringBuilder htmlText = new StringBuilder("<html>");
+        for (String line : lines) {
+            htmlText.append(line).append("<br>");
+        }
+        htmlText.append("</html>");
+
+        return htmlText.toString();
     }
 }
