@@ -791,6 +791,7 @@ class QuizApp extends JFrame {
     CardLayout cardLayout;
     JPanel mainPanel;
     ArrayList<Question> questions;
+    int timer_duration = 30;
 
     final int defaultMinQuestions = 10, defaultMaxQuestions = 30, defaultNQuestions = 15;
     int nQuestions;
@@ -860,9 +861,10 @@ class MainMenuPage extends JPanel {
         // Configure components
         startButton.addActionListener(e -> {
             parentWindow.quizPage.isReviewing = false;
-            this.parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage");
+            parentWindow.cardLayout.show(this.parentWindow.mainPanel, "QuizPage");
             parentWindow.quizPage.loadQuestions();
             parentWindow.quizPage.updateView();
+            parentWindow.quizPage.timerPanel.startTimer();
         });
         startButton.setFont(font);
         settingsButton.setFont(font);
@@ -886,13 +888,14 @@ class MainMenuPage extends JPanel {
 class QuizPage extends JPanel {
     public boolean isReviewing;
     JButton prevButton, nextButton, quitButton;
-    JPanel mainPanel, qpHolder, questionPanel, optionsPanel, bottomBar, topBar;
+    JPanel mainPanel, questionPanel, optionsPanel, bottomBar, topBar;
     JLabel questionText, progressText, topQPSpacer, bottomQPSpacer;
     ArrayList<Question> questions;
     GridBagConstraints gbc;
     int currentQuestionIndex = 0;
     QuizApp parentWindow;
     Font progressFont, questionFont, buttonsFont;
+    TimerPanel timerPanel;
 
     public QuizPage(QuizApp parentWindow) {
         super(new BorderLayout());
@@ -903,7 +906,6 @@ class QuizPage extends JPanel {
         questionFont = new Font("SansSerif", Font.PLAIN, 18);
         buttonsFont = new Font("SansSerif", Font.PLAIN, 18);
         nextButton = new JButton();
-//        qpHolder = new JPanel(new BorderLayout());
         prevButton = new JButton("Previous");
         quitButton = new JButton("Quit to main menu");
         questionText = new JLabel("- Question not yet loaded -");
@@ -911,18 +913,19 @@ class QuizPage extends JPanel {
         questionPanel = new JPanel(new GridBagLayout());
         gbc = new GridBagConstraints();
         bottomBar = new JPanel(new GridLayout(1, 3));
-        topBar = new JPanel(new GridLayout(2, 1));
+        topBar = new JPanel(new BorderLayout());
         mainPanel = new JPanel(new BorderLayout());
         optionsPanel = new JPanel(new GridLayout());
         topQPSpacer = new JLabel();
         bottomQPSpacer = new JLabel();
         isReviewing = false;
         questions = new ArrayList<>();
-        loadQuestions();
+        timerPanel = new TimerPanel(this.parentWindow, parentWindow.timer_duration);
+//        loadQuestions();
 
         // Configure components
         nextButton.addActionListener(e -> {
-        });
+        });  // Add empty action listener because it will be accessed later
         prevButton.addActionListener(e -> toPreviousQuestion());
         quitButton.addActionListener(e -> {
             parentWindow.showPage("MainMenuPage");
@@ -941,15 +944,17 @@ class QuizPage extends JPanel {
         bottomBar.add(prevButton);
         bottomBar.add(quitButton);
         bottomBar.add(nextButton);
+        topBar.add(progressText, BorderLayout.CENTER);
+        topBar.add(timerPanel, BorderLayout.EAST);
 
-        this.add(progressText, BorderLayout.NORTH);
+        this.add(topBar, BorderLayout.NORTH);
         this.add(questionPanel, BorderLayout.CENTER);
         this.add(bottomBar, BorderLayout.SOUTH);
         this.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.WEST); // Spacer
         this.add(Box.createRigidArea(new Dimension(100, 10)), BorderLayout.EAST); // Spacer
 
         this.add(mainPanel, BorderLayout.CENTER);
-        this.updateView();
+//        this.updateView();
     }
 
     void updateView() {
@@ -1082,6 +1087,10 @@ class QuizPage extends JPanel {
 
     void loadQuestions() {
         questions = Utils.getRandomSelection(parentWindow.questions, parentWindow.nQuestions);
+    }
+
+    public void onTimeOut() {
+        JOptionPane.showMessageDialog(this, "Time's up! Not yet fully implemented");
     }
 }
 
@@ -1270,5 +1279,48 @@ class Utils {
         htmlText.append("</html>");
 
         return htmlText.toString();
+    }
+
+    public static Font buttonFont = new Font("SanSerif", Font.PLAIN, 22);
+}
+
+
+class TimerPanel extends JPanel {
+    public int defaultDuration;
+    private int timeLeft = 0;
+    private final JLabel timerLabel;
+    private Timer timer;
+    QuizApp parentWindow;
+
+    public TimerPanel(QuizApp parentWindow, int duration) {
+        super(new BorderLayout());
+        this.defaultDuration = duration;
+        this.parentWindow = parentWindow;
+        timerLabel = new JLabel("Time left: " + timeLeft + " seconds");
+        timerLabel.setBounds(50, 50, 200, 30);
+        timerLabel.setFont(Utils.buttonFont);
+        this.add(timerLabel, BorderLayout.CENTER);
+//        initializePanel();
+    }
+
+    public void startTimer() {
+        if (timer != null)
+            timer.stop();
+        timeLeft = defaultDuration;
+        timerLabel.setText("Time left: " + timeLeft + " seconds");
+        timer = new Timer(1000, e -> {
+            if (timeLeft > 0) {
+                timeLeft--;
+                timerLabel.setText("Time left: " + timeLeft + " seconds");
+            } else {
+                timer.stop();
+                this.onTimeOut();
+            }
+        });
+        timer.start();
+    }
+
+    public void onTimeOut() {
+        parentWindow.quizPage.onTimeOut();
     }
 }
